@@ -19,13 +19,27 @@ if config._USE_NETWORK:
     import ntptime
 
 
+def getstart_time():
+    rv = config._DSLEEP_START
+    if rv is None:
+        dt = holiday.rjslocaltime(tzoff=-6)
+        if (dt[1] > 10) or (dt[1] < 4):
+            rv = 17
+        elif (dt[1] > 8) or (dt[1] < 6):
+            rv = 18
+        else:
+            rv = 19
+    return rv
+
+
 def check_sleep(dosleep=False):
     dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
     hrsleep = 8 * 3600 * 1000
-    print(f" {dt}.   DS {config._DSLEEP_START}")
     hrnow = dt[3] + (dt[4] / 60)
-    if hrnow < config._DSLEEP_START:
-        hrsleep = int(min(8, config._DSLEEP_START - hrnow) * 3600 * 1000)
+    stime = getstart_time()
+    print(f" {dt}.   DS {stime}")
+    if hrnow < stime:
+        hrsleep = int(min(8, stime - hrnow) * 3600 * 1000)
     elif dt[3] < 23:
         hrsleep = 0
     if dosleep and (hrsleep > 0):
