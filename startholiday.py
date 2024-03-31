@@ -20,14 +20,20 @@ if config._USE_NETWORK:
 
 
 def check_sleep(dosleep=False):
-    dt = time.localtime()
+    dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
     hrsleep = 8 * 3600 * 1000
-    if dt[3] < 17:
-        hrsleep = min(8, 17 - dt[0]) * 3600 * 1000
+    print(f" {dt}.   DS {config._DSLEEP_START}")
+    hrnow = dt[3] + (dt[4] / 60)
+    if hrnow < config._DSLEEP_START:
+        hrsleep = int(min(8, config._DSLEEP_START - hrnow) * 3600 * 1000)
     elif dt[3] < 23:
         hrsleep = 0
-    if dosleep:
+    if dosleep and (hrsleep > 0):
+        print(f"deepsleep active {hrsleep}")
+        time.sleep(0.2)
         machine.deepsleep(hrsleep)
+    else:
+        print(f"deepsleep request {dosleep} {hrsleep}")
     return hrsleep
 
 
@@ -73,7 +79,7 @@ def start(interruptStart=True, delayStart=False):
             )
             dt = time.localtime()
         print(dt)
-        hardsleep = False  # should read from config.py
+        hardsleep = config._DEEPSLEEP  # should read from config.py
         check_sleep(hardsleep)
         pix = runleds.test_setup(config._NUM_PIX, pin=config._NEOPIN)
         if haveTemp:
