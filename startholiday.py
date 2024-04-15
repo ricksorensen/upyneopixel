@@ -44,6 +44,9 @@ def check_sleep(dosleep=False):
         hrsleep = 0
     if dosleep and (hrsleep > 0):
         print(f"deepsleep active {hrsleep}")
+        pix = runleds.test_setup(config._NUM_PIX, pin=config._NEOPIN)
+        pix.fill((0, 0, 0))
+        pix.write()
         time.sleep(0.2)
         machine.deepsleep(hrsleep)
     else:
