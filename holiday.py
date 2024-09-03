@@ -40,11 +40,12 @@ class Hanukkah(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
         self.data = runleds.test_data(expscale=6, b=0.25, pixlen=len(pix))
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
+        self.twinkdata = twinkle.hanukkah_col
 
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = rjslocaltime()
-        self.isHoliday = (dt[0] == 2023) and (dt[1] == 12) and (7 <= dt[2] <= 15)
+        self.isHoliday = (dt[0] == 2024) and (dt[1] == 12) and (7 <= dt[2] <= 15)
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
@@ -64,7 +65,7 @@ class Hanukkah(Holiday):
             )
         else:
             print("hanukkah twinkle")
-            twinkle.doTwinkle(self.pix, doHanukkah=True, tdur_sec=self.dur)
+            twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
 
