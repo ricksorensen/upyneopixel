@@ -6,6 +6,8 @@ import time
 import os
 import gc
 import config
+import mqttquick as slp
+
 
 try:
     import esp32
@@ -17,41 +19,6 @@ except ImportError:
 if config._USE_NETWORK:
     import netconnect
     import ntptime
-
-
-def getstart_time():
-    rv = config._DSLEEP_START
-    if rv is None:
-        dt = holiday.rjslocaltime(tzoff=-6)
-        if (dt[1] > 10) or (dt[1] < 4):
-            rv = 17
-        elif (dt[1] > 8) or (dt[1] < 6):
-            rv = 18
-        else:
-            rv = 19
-    return rv
-
-
-def check_sleep(dosleep=False):
-    dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
-    hrsleep = 8 * 3600 * 1000
-    hrnow = dt[3] + (dt[4] / 60)
-    stime = getstart_time()
-    print(f" {dt}.   DS {stime}")
-    if hrnow < stime:
-        hrsleep = int(min(8, stime - hrnow) * 3600 * 1000)
-    elif dt[3] < 23:
-        hrsleep = 0
-    if dosleep and (hrsleep > 0):
-        print(f"deepsleep active {hrsleep}")
-        pix = runleds.test_setup(config._NUM_PIX, pin=config._NEOPIN)
-        pix.fill((0, 0, 0))
-        pix.write()
-        time.sleep(0.2)
-        machine.deepsleep(hrsleep)
-    else:
-        print(f"deepsleep request {dosleep} {hrsleep}")
-    return hrsleep
 
 
 endstat = []
@@ -97,7 +64,12 @@ def start(interruptStart=True, delayStart=False):
             dt = time.localtime()
         print(dt)
         hardsleep = config._DEEPSLEEP  # should read from config.py
-        check_sleep(hardsleep)
+        slp.check_sleep(
+            dosleep=hardsleep,
+            start=config._DSLEEP_START,
+            npix=config._NUM_PIX,
+            pixpin=config._NEOPIN,
+        )
         pix = runleds.test_setup(config._NUM_PIX, pin=config._NEOPIN)
         if haveTemp:
             tmcu = esp32.mcu_temperature()
@@ -136,7 +108,12 @@ def start(interruptStart=True, delayStart=False):
                 if haveTemp:
                     print("temp: ", esp32.mcu_temperature())
                 gc.collect()
-                check_sleep(hardsleep)
+                slp.check_sleep(
+                    dosleep=hardsleep,
+                    start=config._DSLEEP_START,
+                    npix=config._NUM_PIX,
+                    pixpin=config._NEOPIN,
+                )
         except Exception as unexpected:
             endstat.append("Unexpected Exception")
             endstat.append(unexpected)
