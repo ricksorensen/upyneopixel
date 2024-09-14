@@ -1,4 +1,3 @@
-import machine
 import holiday
 import everyday
 import runleds
@@ -6,15 +5,21 @@ import time
 import os
 import gc
 import config
-import mqttquick as slp
 
 
 try:
     import esp32
+    from mqttquick import check_sleep
 
+    # esp32.RMT.bitstream_channel(0)  # default is 1
+    # esp32.RMT.bitstream_channel(None)  # use bitbanging
     haveTemp = True
 except ImportError:
     haveTemp = False
+
+    def check_sleep(dosleep=False, start=None, npix=300, pixpin=2):
+        return 0
+
 
 if config._USE_NETWORK:
     import netconnect
@@ -22,6 +27,16 @@ if config._USE_NETWORK:
 
 
 endstat = []
+
+
+def checkdeepsleep():
+    import machine
+
+    rv = config._DEEPSLEEP
+    if config._DEEPSLEEP:
+        dodspin = machine.Pin(3, machine.Pin.PULLHIGH)
+        rv = dodspin.value() != 0
+    return rv
 
 
 def start(interruptStart=True, delayStart=False):
@@ -64,7 +79,7 @@ def start(interruptStart=True, delayStart=False):
             dt = time.localtime()
         print(dt)
         hardsleep = config._DEEPSLEEP  # should read from config.py
-        slp.check_sleep(
+        check_sleep(
             dosleep=hardsleep,
             start=config._DSLEEP_START,
             npix=config._NUM_PIX,
@@ -78,14 +93,30 @@ def start(interruptStart=True, delayStart=False):
         else:
             print("no temperature available")
 
-        hanukkah = holiday.Hanukkah(pix, dur=config._HAN_DUR, nrandom=len(pix) // 5)
+        hanukkah = holiday.Hanukkah(
+            pix,
+            dur=config._HAN_DUR,
+            nrandom=(
+                (len(pix) // config._RANDOM_RATIO)
+                if config._RANDOM_RATIO is not None
+                else None
+            ),
+        )
         valentine = holiday.Valentine(
             pix, dur=config._HAN_DUR, nrandom=None, swaprg=config._SWAPRGB
         )
         stpats = holiday.SaintPatrick(
             pix, dur=config._HAN_DUR, nrandom=None, swaprg=config._SWAPRGB
         )
-        christmas = holiday.Christmas(pix, dur=config._LONG_DUR, nrandom=len(pix) // 3)
+        christmas = holiday.Christmas(
+            pix,
+            dur=config._LONG_DUR,
+            nrandom=(
+                (len(pix) // config._RANDOM_RATIO)
+                if config._RANDOM_RATIO is not None
+                else None
+            ),
+        )
         birthday = holiday.Birthday(pix, dur=config._LONG_DUR)
         fallback = everyday.Everyday(
             pix,
@@ -108,7 +139,7 @@ def start(interruptStart=True, delayStart=False):
                 if haveTemp:
                     print("temp: ", esp32.mcu_temperature())
                 gc.collect()
-                slp.check_sleep(
+                check_sleep(
                     dosleep=hardsleep,
                     start=config._DSLEEP_START,
                     npix=config._NUM_PIX,
