@@ -76,6 +76,7 @@ class Christmas(Holiday):
             self.data = runleds.scale_bytearray(self.data, sf)
         else:
             self.data = cbytes.hls_g_r_b_med
+        self.twinkdata = twinkle.christmas_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
     def chkDate(self, dt=None, run=False):
@@ -101,7 +102,7 @@ class Christmas(Holiday):
             )
         else:
             print("twinkle")
-            twinkle.doTwinkle(self.pix, tdur_sec=self.dur)
+            twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
 
