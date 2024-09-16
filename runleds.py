@@ -34,6 +34,7 @@ def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
     return cu
 
 
+@micropython.native
 def fillpixel(leds, src, start=0):
     if len(src) + start < len(leds):
         for i in range(len(src)):
@@ -45,10 +46,10 @@ def fillpixel(leds, src, start=0):
             leds[i] = src[len(src) - (len(leds) - start) + i]
 
 
-# @micropython.native
 # note that default color buffer order for micropython-lib
 #   neopixel is G R B (not R G B)
 #
+@micropython.native
 def blitbuf(src, leds, pixpos, clear=True, debug=False):
     if clear:
         leds.fill((0, 0, 0))
@@ -107,7 +108,8 @@ def loop_led_time(
 
 
 def test_setup(npix=300, pin=2):
-    pix = neopixel.NeoPixel(machine.Pin(pin), npix)
+    # neopixel.NeoPixel.ORDER = (0, 1, 2, 3)
+    pix = neopixel.NeoPixel(machine.Pin(pin), npix, timing=1)
     pix.fill((0, 0, 0))
     pix.write()
     print("Test_setup: ", npix)
