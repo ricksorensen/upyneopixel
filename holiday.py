@@ -107,13 +107,9 @@ class Christmas(Holiday):
 
 
 class Valentine(Holiday):
-    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None, swaprg=True):
-        self.data = runleds.test_data(
-            ci=0, expscale=6, swaprg=swaprg, b=0.25, pixlen=len(pix)
-        )
+    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
+        self.data = runleds.test_data(ci=0, expscale=6, b=0.25, pixlen=len(pix))
         self.twinkdata = twinkle.valentine_col
-        if not swaprg:
-            self.twinkdata = twinkle.swapGRB(self.twinkdata)
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
     def chkDate(self, dt=None, run=False):
@@ -144,13 +140,9 @@ class Valentine(Holiday):
 
 
 class SaintPatrick(Holiday):
-    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None, swaprg=True):
-        self.data = runleds.test_data(
-            ci=1, expscale=6, swaprg=swaprg, b=0.25, pixlen=len(pix)
-        )
+    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
+        self.data = runleds.test_data(ci=1, expscale=6, b=0.25, pixlen=len(pix))
         self.twinkdata = twinkle.stpat_col
-        if not swaprg:
-            self.twinkdata = twinkle.swapGRB(self.twinkdata)
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
     def chkDate(self, dt=None, run=False):
