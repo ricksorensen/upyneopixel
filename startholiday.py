@@ -86,7 +86,9 @@ def start(interruptStart=True, delayStart=False):
             npix=config._NUM_PIX,
             pixpin=config._NEOPIN,
         )
-        pix = runleds.test_setup(config._NUM_PIX, pin=config._NEOPIN)
+        pix = runleds.test_setup(
+            config._NUM_PIX, pin=config._NEOPIN, swaprgb=config._SWAPRGB
+        )
         if haveTemp:
             tmcu = esp32.mcu_temperature()
             tmcu = esp32.mcu_temperature()
@@ -104,10 +106,14 @@ def start(interruptStart=True, delayStart=False):
             ),
         )
         valentine = holiday.Valentine(
-            pix, dur=config._HAN_DUR, nrandom=None, swaprg=config._SWAPRGB
+            pix,
+            dur=config._HAN_DUR,
+            nrandom=None,
         )
         stpats = holiday.SaintPatrick(
-            pix, dur=config._HAN_DUR, nrandom=None, swaprg=config._SWAPRGB
+            pix,
+            dur=config._HAN_DUR,
+            nrandom=None,
         )
         christmas = holiday.Christmas(
             pix,
@@ -135,7 +141,7 @@ def start(interruptStart=True, delayStart=False):
                     or stpats.chkDate(dt=dt, run=True)
                     or halloeve.chkDate(dt=dt, run=True)
                     or fallback.run(
-                        correct=config._TEMP_CORRECT, swaprg=config._SWAPRGB
+                        correct=config._TEMP_CORRECT,
                     )
                 )
                 print("free mem: ", gc.mem_free())

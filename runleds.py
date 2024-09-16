@@ -107,9 +107,10 @@ def loop_led_time(
     gc.collect()
 
 
-def test_setup(npix=300, pin=2):
-    # neopixel.NeoPixel.ORDER = (0, 1, 2, 3)
+def test_setup(npix=300, pin=2, swaprgb=False):
     pix = neopixel.NeoPixel(machine.Pin(pin), npix, timing=1)
+    if swaprgb:
+        pix.ORDER = (0, 1, 2, 3)  # neopixel.NeoPixel.ORDER default is  (1, 0, 2, 3)
     pix.fill((0, 0, 0))
     pix.write()
     print("Test_setup: ", npix)
@@ -118,26 +119,20 @@ def test_setup(npix=300, pin=2):
 
 # note that default color buffer order for micropython-lib
 #   neopixel is G R B (not R G B)
-def test_data(expscale=3, b=0.25, swaprg=True, pixlen=300, reverse=True, ci=2):
+def test_data(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
     norm = 2 if reverse else 1
     step = min(pixlen // norm - 5, 50 // norm)
     fwd = dofade_exp(ci=ci, nstep=step, b=b, expscale=expscale)
     print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
     alld = []
     for x in fwd:
-        if swaprg:
-            alld.extend([x[1], x[0], x[2]])
-        else:
-            alld.extend(x)
+        alld.extend(x)
     if reverse:
         bkwd = fwd.copy()
         bkwd.reverse()
 
         for x in bkwd:
-            if swaprg:
-                alld.extend([x[1], x[0], x[2]])
-            else:
-                alld.extend(x)
+            alld.extend(x)
     return bytearray(alld)
 
 
