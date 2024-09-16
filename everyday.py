@@ -3,14 +3,20 @@ import runleds
 import colorsupport
 import onewire
 import ds18x20
-import esp32
 import config
 import machine
+
+try:
+    haveTemp = True
+    import esp32
+
+except ImportError:
+    haveTemp = False
 
 
 def get_temp(tmin, tmax, correct=0, tempsens=None):
     extt = None
-    tmcu = min(max(esp32.mcu_temperature() - correct, tmin), tmax)
+    tmcu = min(max(esp32.mcu_temperature() - correct, tmin), tmax) if haveTemp else None
     if tempsens is not None:
         import time
 
@@ -22,6 +28,55 @@ def get_temp(tmin, tmax, correct=0, tempsens=None):
 
 def mapRange(value, inMin, inMax, outMin, outMax):
     return outMin + (((value - inMin) / (inMax - inMin)) * (outMax - outMin))
+
+
+def crossHue(h, nstep=10, b=0.25, swaprg=True, reverse=True):
+    fwd = []
+    for hi in range(h - (nstep // 2), h + (nstep // 2)):
+        np = colorsupport.colorHSVfloat((hi % 360) / 360, 1, b)
+        fwd.append(np)
+    alld = []
+    for x in fwd:
+        if swaprg:
+            alld.extend([x[1], x[0], x[2]])
+        else:
+            alld.extend(x)
+    if reverse:
+        bkwd = fwd.copy()
+        bkwd.reverse()
+
+        for x in bkwd:
+            if swaprg:
+                alld.extend([x[1], x[0], x[2]])
+            else:
+                alld.extend(x)
+    return bytearray(alld)
+
+
+def crossHue2(h, nstep=10, b=0.25, swaprg=True, reverse=True):
+    fwd = []
+    dh = 30 / nstep
+    hi = h - 30
+    for i in range(nstep):
+        np = colorsupport.colorHSVfloat((int(hi) % 360) / 360, 1, b)
+        fwd.append(np)
+        hi = hi + 2 * dh
+    alld = []
+    for x in fwd:
+        if swaprg:
+            alld.extend([x[1], x[0], x[2]])
+        else:
+            alld.extend(x)
+    if reverse:
+        bkwd = fwd.copy()
+        bkwd.reverse()
+
+        for x in bkwd:
+            if swaprg:
+                alld.extend([x[1], x[0], x[2]])
+            else:
+                alld.extend(x)
+    return bytearray(alld)
 
 
 # fade saturation for hsv0 from 1 to 0, fixed brightness (value)
@@ -74,9 +129,17 @@ class Everyday(Holiday):
         try:
             tout, tmcu = get_temp(self.tmin, self.tmax, correct, tempsens=self.tempsens)
             t = tout if tout is not None else tmcu
+            if t is None:
+                t = 24
             # h = (168 - 4.8 * t)/360*65536
-            temphue = mapRange(t, self.tmin, self.tmax, 220, 0)
-            self.data = fadeHue(temphue, nstep=(len(self.pix) // 2 - 10), swaprg=swaprg)
+            temphue = mapRange(t, self.tmin, self.tmax, 220, -40)
+            # self.data = fadeHue(temphue, nstep=(len(self.pix) // 2 - 10), swaprg=swaprg)
+            self.data = crossHue2(
+                temphue,
+                nstep=(len(self.pix) // 2 - 10),
+                swaprg=swaprg,
+                reverse=False,
+            )
             nrand = self.nrandom
         except ImportError:
             self.data = None
