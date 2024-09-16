@@ -1,5 +1,6 @@
 import holiday
 import everyday
+import halloween
 import runleds
 import time
 import os
@@ -118,6 +119,7 @@ def start(interruptStart=True, delayStart=False):
             ),
         )
         birthday = holiday.Birthday(pix, dur=config._LONG_DUR)
+        halloeve = halloween.Halloween(pix)
         fallback = everyday.Everyday(
             pix,
             dur=config._LONG_DUR,
@@ -131,6 +133,7 @@ def start(interruptStart=True, delayStart=False):
                     or valentine.chkDate(dt=dt, run=True)
                     or christmas.chkDate(dt=dt, run=True)
                     or stpats.chkDate(dt=dt, run=True)
+                    or halloeve.chkDate(dt=dt, run=True)
                     or fallback.run(
                         correct=config._TEMP_CORRECT, swaprg=config._SWAPRGB
                     )
