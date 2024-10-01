@@ -1,3 +1,6 @@
-import startholiday as sh
+import os
 
-sh.start(delayStart=False, interruptStart=False)
+if "nostart" not in os.listdir():
+    import startholiday as sh
+
+    sh.start(delayStart=False, interruptStart=False)
