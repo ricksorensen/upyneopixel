@@ -88,7 +88,7 @@ def fadeHue(h, nstep=10, b=0.25, reverse=True):
 class Everyday(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
         self.data = None
-        self.tmin = -5
+        self.tmin = -15
         self.tmax = 35
         self.tempsens = None
         try:
