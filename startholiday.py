@@ -40,19 +40,20 @@ def checkdeepsleep():
     return rv
 
 
-def start(interruptStart=True, delayStart=False):
+def start(interruptStart=True, delayStart=0):
     if interruptStart:
         print("time start up interrupt")
-        time.sleep(30)
+        time.sleep(60)
     allokay = True
     if config._USE_NETWORK:
         print("starting webrepl ", config._IP_ADDR)
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
+        # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
-        if delayStart:
+        while delayStart > 0 and os.dupterm(None) is None:
             print("wait for WebREPL connection")
-            while os.dupterm(None) is None:
-                time.sleep(30)
+            time.sleep(30)
+            delayStart = delayStart - 1
     print("starting lights")
     print("initial memory ", gc.mem_free())
     if allokay:
