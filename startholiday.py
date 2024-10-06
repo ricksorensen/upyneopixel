@@ -40,7 +40,7 @@ def checkdeepsleep():
     return rv
 
 
-def start(interruptStart=True, delayStart=0):
+def start(interruptStart=True, delayStart=0, force_date=None):
     if interruptStart:
         print("time start up interrupt")
         time.sleep(60)
@@ -57,7 +57,7 @@ def start(interruptStart=True, delayStart=0):
     print("starting lights")
     print("initial memory ", gc.mem_free())
     if allokay:
-        if config._USE_DATE is None:
+        if force_date is None and config._USE_DATE is None:
             if config._USE_NETWORK:
                 time.sleep(5)
                 ntptime.settime()
@@ -66,11 +66,13 @@ def start(interruptStart=True, delayStart=0):
             import machine
 
             r = machine.RTC()
+            if force_date is None:
+                force_date = config._USE_DATE
             r.datetime(
                 (
-                    config._USE_DATE[0],
-                    config._USE_DATE[1],
-                    config._USE_DATE[2],
+                    force_date[0],
+                    force_date[1],
+                    force_date[2],
                     0,
                     0,
                     0,
