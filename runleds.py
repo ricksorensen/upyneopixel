@@ -12,14 +12,6 @@ def offall(pix=None):
         pix.write()
 
 
-def dofade_white(ci=2, nstep=10):
-    cu = []
-    for i in range(nstep):
-        sf = (i * 255) // nstep
-        cu.append([255 if i == ci else sf for i in range(3)])
-    return cu
-
-
 def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
     import math
 
@@ -42,34 +34,22 @@ def fillpixel(src, leds, start=0, clear=True):
         for i in range(len(src)):
             leds[i + start] = src[i]
     else:
-        for i in range(len(leds) - start):
-            leds[start + i] = src[i]
-        for i in range(len(src) - (len(leds) - start)):
-            leds[i] = src[len(src) - (len(leds) - start) + i]
+        for i in range(len(src)):
+            leds[(start + i) % len(leds)] = src[i]
     leds.write()
 
 
-# note that default color buffer order for micropython-lib
-#   neopixel is G R B (not R G B)
-#
-@micropython.native
-def blitbuf(src, leds, pixpos, clear=True, debug=False):
-    if clear:
-        leds.fill((0, 0, 0))
-    llen = len(leds)  # pixels
-    pixposu = pixpos % llen
-    slen = len(src)  # buff bytes
-    srcpixlen = slen // 3  # src len in pixels
-    sp = 3 * pixposu  # sp in ledbuf in byte
-    ep = min(sp + slen, llen * 3)  # end in ledbug in bytes, first write
-    fwlen = ep - sp  # first write len in bytes
-    if debug:
-        print(f"srclen={slen} srcpixlen={srcpixlen} sp={sp} ep={ep} fwlen={fwlen}")
-    if srcpixlen < llen:  # pattern should fit
-        leds.buf[sp:ep] = src[:fwlen]
-        if fwlen < slen:
-            leds.buf[: slen - fwlen] = src[fwlen:]
-        leds.write()
+def barrayToPix(src, swaprgb=False):
+    d = None
+    if src is not None:
+        d = []
+        np = len(src) // 3
+        for i in range(np):
+            if not swaprgb:
+                d.append((src[i * 3], src[i * 3 + 1], src[i * 3 + 2]))
+            else:
+                d.append((src[i * 3 + 1], src[i * 3], src[i * 3 + 2]))
+    return d
 
 
 def randomColor(bright):
@@ -97,7 +77,11 @@ def loop_led_time(
     print("loop_led_time: npix = ", llen)
     while tend is None or time.ticks_ms() < tend:
         if src is not None:
-            blitbuf(src, leds, i, clear=sclr, debug=False)
+            # if isinstance(src, bytearray):
+            #    blitbuf(src, leds, i, clear=sclr, debug=False)
+            # else:
+            # fillpixel(pixarray, leds, start=i, clear=sclr)
+            fillpixel(src, leds, start=i, clear=sclr)
         elif sclr:
             leds.fill((0, 0, 0))
         dorandom(leds, nrandom=nrandom, bright=bright)
@@ -122,7 +106,7 @@ def test_setup(npix=300, pin=2, swaprgb=False):
 
 # note that default color buffer order for micropython-lib
 #   neopixel is G R B (not R G B)
-def test_data(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
+def test_dataa(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
     norm = 2 if reverse else 1
     step = min(pixlen // norm - 5, 50 // norm)
     fwd = dofade_exp(ci=ci, nstep=step, b=b, expscale=expscale)
@@ -136,28 +120,11 @@ def test_data(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
 
         for x in bkwd:
             alld.extend(x)
-    return bytearray(alld)
+    return alld
 
 
-def scale_bytearray(bary, sf=0.5):
-    x = bytearray(len(bary))
-    for i in range(len(bary)):
-        x[i] = min(int(sf * bary[i] + 0.5), 0xFF)
+def scale_pixels(pdata, sf=0.5):
+    x = []
+    for p in pdata:
+        x.append([min(int(z * sf + 0.5), 0xFF) for z in p])
     return x
-
-
-def scale_bytearray_inplace(bary, sf=0.5):
-    for i in range(len(bary)):
-        bary[i] = min(int(sf * bary[i] + 0.5), 0xFF)
-    return bary  # to match above
-
-
-# @micropython.native
-def shift_buf(pix, n):
-    lb = len(pix.buf)
-    nbys = n * 3
-    tbuf = bytearray(nbys)
-    tbuf = pix.buf[lb - nbys :]
-    pix.buf[nbys:] = pix.buf[: lb - nbys]
-    pix.buf[:nbys] = tbuf
-    gc.collect()

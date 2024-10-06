@@ -3,7 +3,7 @@ import random
 import gc
 import runleds
 import twinkle
-import cbytes
+import cpixels
 
 
 # time.localtime()/gmtime() are UTC
@@ -38,7 +38,7 @@ class Holiday:
 
 class Hanukkah(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
-        self.data = runleds.test_data(expscale=6, b=0.25, pixlen=len(pix))
+        self.data = runleds.test_dataa(expscale=6, b=0.25, pixlen=len(pix))
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
         self.twinkdata = twinkle.hanukkah_col
 
@@ -71,11 +71,10 @@ class Hanukkah(Holiday):
 
 class Christmas(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
-        self.data = cbytes.hls_g_r_b_med if len(pix) > 75 else cbytes.hsv_g_r_b
+        # self.data = cbytes.hls_g_r_b_med if len(pix) > 75 else cbytes.hsv_g_r_b
+        self.data = cpixels.hls_g_r_med_a if len(pix) > 75 else cpixels.hsv_g_r_a
         if sf is not None:
-            self.data = runleds.scale_bytearray(self.data, sf)
-        else:
-            self.data = cbytes.hls_g_r_b_med
+            self.data = runleds.scale_pixels(self.data, sf)
         self.twinkdata = twinkle.christmas_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
@@ -108,7 +107,7 @@ class Christmas(Holiday):
 
 class Valentine(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
-        self.data = runleds.test_data(ci=0, expscale=6, b=0.25, pixlen=len(pix))
+        self.data = runleds.test_dataa(ci=0, expscale=6, b=0.25, pixlen=len(pix))
         self.twinkdata = twinkle.valentine_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
@@ -141,7 +140,7 @@ class Valentine(Holiday):
 
 class SaintPatrick(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
-        self.data = runleds.test_data(ci=1, expscale=6, b=0.25, pixlen=len(pix))
+        self.data = runleds.test_dataa(ci=1, expscale=6, b=0.25, pixlen=len(pix))
         self.twinkdata = twinkle.stpat_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
