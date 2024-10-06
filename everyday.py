@@ -30,10 +30,10 @@ def mapRange(value, inMin, inMax, outMin, outMax):
     return outMin + (((value - inMin) / (inMax - inMin)) * (outMax - outMin))
 
 
-def crossHue(h, nstep=10, b=0.25, reverse=True):
+def crossHue(h, nstep=10, b=0.25, reverse=True, swaprgb=False):
     fwd = []
     for hi in range(h - (nstep // 2), h + (nstep // 2)):
-        np = colorsupport.colorHSVfloat((hi % 360) / 360, 1, b)
+        np = colorsupport.colorHSVfloat((hi % 360) / 360, 1, b, swaprgb=swaprgb)
         fwd.append(np)
     alld = []
     for x in fwd:
@@ -47,15 +47,16 @@ def crossHue(h, nstep=10, b=0.25, reverse=True):
     return bytearray(alld)
 
 
-def crossHue2(h, nstep=10, b=0.25, reverse=True):
+def crossHue2(h, nstep=10, b=0.25, reverse=True, swaprgb=False):
     fwd = []
     dh = 30 / nstep
     hi = h - 30
     for i in range(nstep):
-        np = colorsupport.colorHSVfloat((int(hi) % 360) / 360, 1, b)
+        np = colorsupport.colorHSVfloat((int(hi) % 360) / 360, 1, b, swaprgb=swaprgb)
         fwd.append(np)
         hi = hi + 2 * dh
     alld = []
+    # alld = sum(fwd,[])
     for x in fwd:
         alld.extend(x)
     if reverse:
@@ -68,10 +69,10 @@ def crossHue2(h, nstep=10, b=0.25, reverse=True):
 
 
 # fade saturation for hsv0 from 1 to 0, fixed brightness (value)
-def fadeHue(h, nstep=10, b=0.25, reverse=True):
+def fadeHue(h, nstep=10, b=0.25, reverse=True, swaprgb=False):
     fwd = []
     for i in range(nstep):
-        np = colorsupport.colorHSVfloat(h / 360, (1 - i / nstep), b)
+        np = colorsupport.colorHSVfloat(h / 360, (1 - i / nstep), b, swaprgb=swaprgb)
         fwd.append(np)
     alld = []
     for x in fwd:
@@ -120,6 +121,7 @@ class Everyday(Holiday):
                 temphue,
                 nstep=(len(self.pix) // 2 - 10),
                 reverse=False,
+                swaprgb=config._SWAPRGB,
             )
             nrand = self.nrandom
         except ImportError:
