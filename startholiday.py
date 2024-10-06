@@ -40,7 +40,7 @@ def checkdeepsleep():
     return rv
 
 
-def start(interruptStart=True, delayStart=0, force_date=None):
+def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
     if interruptStart:
         print("time start up interrupt")
         time.sleep(60)
@@ -132,6 +132,7 @@ def start(interruptStart=True, delayStart=0, force_date=None):
         fallback = everyday.Everyday(
             pix,
             dur=config._LONG_DUR,
+            fixtemp=fixtemp,
         )
         print(" Allocate memory :", gc.mem_free())
         try:
@@ -158,8 +159,11 @@ def start(interruptStart=True, delayStart=0, force_date=None):
                     pixpin=config._NEOPIN,
                 )
         except Exception as unexpected:
+            import sys
+
             endstat.append("Unexpected Exception")
             endstat.append(unexpected)
+            sys.print_exception(unexpected)
     else:
         print("Not All OKAY")
         endstat.append("Not ALL OKAY")
