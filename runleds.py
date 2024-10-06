@@ -35,7 +35,9 @@ def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
 
 
 @micropython.native
-def fillpixel(leds, src, start=0):
+def fillpixel(src, leds, start=0, clear=True):
+    if clear:
+        leds.fill((0, 0, 0))
     if len(src) + start < len(leds):
         for i in range(len(src)):
             leds[i + start] = src[i]
@@ -44,6 +46,7 @@ def fillpixel(leds, src, start=0):
             leds[start + i] = src[i]
         for i in range(len(src) - (len(leds) - start)):
             leds[i] = src[len(src) - (len(leds) - start) + i]
+    leds.write()
 
 
 # note that default color buffer order for micropython-lib
