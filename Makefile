@@ -14,7 +14,7 @@ DO_START=
 STARTMODULE=main.holiday.py
 
 MAIN = startholiday.py
-LEDSEQ = everyday.py holiday.py runleds.py twinkle.py cbytes.py halloween.py
+LEDSEQ = everyday.py holiday.py runleds.py twinkle.py cpixels.py halloween.py
 PYMODULE = colorsupport.py mqttquick.py netconnect.py webrepl_cfg.py randBlinkerFade.py
 CFIGMODULE = config.$(MP_MCU).py
 
