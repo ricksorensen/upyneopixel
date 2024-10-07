@@ -1,0 +1,15 @@
+_IP_ADDR = "192.168.1.174"
+_LONG_DUR = 200
+_TWINK_DUR = 100
+_NUM_PIX = 300
+_HAN_DUR = 100
+_NEOPIN = 26
+_USE_NETWORK = False
+_WAIT_NO_CONNECT = 120  # 7200  # 2 hours
+_USE_DATE = None  # (2024, 10, 31)  # (2024, 12, 10)
+_TEMP_CORRECT = 20
+_SWAPRGB = False
+_TEMP_PIN = 0  # xiao pin 7: esp32c3 GPIO21
+_DEEPSLEEP = False
+_DSLEEP_START = 18.1  # Time to wake from sleep , fractional hour, local STANDARD time
+_RANDOM_RATIO = 10
