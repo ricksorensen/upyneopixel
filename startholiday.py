@@ -133,6 +133,11 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
             pix,
             dur=config._LONG_DUR,
             fixtemp=fixtemp,
+            nrandom=(
+                (len(pix) // config._RANDOM_RATIO)
+                if config._RANDOM_RATIO is not None
+                else None
+            ),
         )
         print(" Allocate memory :", gc.mem_free())
         try:
