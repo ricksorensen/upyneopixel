@@ -63,7 +63,7 @@ class Halloween(holiday.Holiday):
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = holiday.rjslocaltime()
-        self.isHoliday = (dt[1] == 10) and (dt[2] >= 30)
+        self.isHoliday = (dt[1] == 10) and (dt[2] >= 25)
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
