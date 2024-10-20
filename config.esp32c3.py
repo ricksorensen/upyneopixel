@@ -11,5 +11,5 @@ _TEMP_CORRECT = 20
 _SWAPRGB = False
 _TEMP_PIN = 21  # xiao pin 7: esp32c3 GPIO21
 _DEEPSLEEP = True
-_DSLEEP_START = 18.1  # Time to wake from sleep , fractional hour, local STANDARD time
+_DSLEEP_START = 17  # Time to wake from sleep , fractional hour, local STANDARD time
 _RANDOM_RATIO = 10
