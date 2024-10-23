@@ -106,3 +106,23 @@ class Everyday(Holiday):
             bright=self.bright,
         )
         return t
+
+    def getTempColor(self, b=0.2):
+        c = (0, 0, 0)
+        tout = None
+        try:
+            tout, tmcu = get_temp(
+                self.tmin,
+                self.tmax,
+                correct=0,
+                tempsens=self.tempsens if self.fixtemp is None else self.fixtemp,
+            )
+            # h = (168 - 4.8 * t)/360*65536
+            if tout is not None:
+                temphue = mapRange(tout, self.tmin, self.tmax, 220, -40)
+                c = colorsupport.colorHSVfloat(
+                    (int(temphue) % 360) / 360, 1, b, swaprgb=config._SWAPRGB
+                )
+        except:
+            print("exception while checking temp sensor")
+        return c, tout
