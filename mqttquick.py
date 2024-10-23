@@ -1,14 +1,22 @@
-import machine
-import time
+# import machine
+# import time
 import holiday
-import runleds
+
+# import runleds
 
 from umqtt.simple import MQTTClient
 
 
-def msgalert(hrsleep, hrnow):
-    msg = "{}: Sleep={}".format(hrnow, hrsleep)
-    topic = "alert/sleep" if hrsleep is not None else "alert/wake"
+def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
+    tnow = holiday.rjslocaltime(tzoff=-6)
+    msg = "{:04d}{:02d}{:02d}{:02d}{:02d}: Hrnow={} Sleep={} Temp={}".format(
+        tnow[0], tnow[1], tnow[2], tnow[3], tnow[4], hrnow, hrsleep, temp
+    )
+    topic = (
+        f"alert/sleep{addtopic}"
+        if ((hrsleep is not None) and (hrsleep > 0))
+        else f"alert/wake{addtopic}"
+    )
     mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
     mqttc.connect()
     mqttc.publish(topic, msg, retain=True)
@@ -28,25 +36,25 @@ def getstart_time(start):
     return rv
 
 
-def check_sleep(dosleep=False, start=None, npix=300, pixpin=2):
-    dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
-    hrsleep = 8 * 3600 * 1000
-    hrnow = dt[3] + (dt[4] / 60)
-    stime = getstart_time(start)
-    print(f" {dt}.   DS {stime}")
-    if hrnow < stime:
-        hrsleep = int(min(8, stime - hrnow) * 3600 * 1000)
-    elif dt[3] < 23:
-        hrsleep = 0
-    if dosleep and (hrsleep > 0):
-        print(f"deepsleep active {hrsleep}")
-        if npix is not None:
-            pix = runleds.test_setup(npix, pin=pixpin)
-            pix.fill((0, 0, 0))
-            pix.write()
-        msgalert(hrsleep, hrnow)
-        time.sleep(0.2)
-        machine.deepsleep(hrsleep)
-    else:
-        print(f"deepsleep request {dosleep} {hrsleep}")
-    return hrsleep
+# def check_sleep(dosleep=False, start=None, npix=300, pixpin=2):
+#     dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
+#     hrsleep = 8 * 3600 * 1000
+#     hrnow = dt[3] + (dt[4] / 60)
+#     stime = getstart_time(start)
+#     print(f" {dt}.   DS {stime}")
+#     if hrnow < stime:
+#         hrsleep = int(min(8, stime - hrnow) * 3600 * 1000)
+#     elif dt[3] < 23:
+#         hrsleep = 0
+#     if dosleep and (hrsleep > 0):
+#         print(f"mqtt deepsleep active {hrsleep}")
+#         if npix is not None:
+#             pix = runleds.test_setup(npix, pin=pixpin)
+#             pix.fill((0, 0, 0))
+#             pix.write()
+#         msgalert(hrsleep, hrnow)
+#         time.sleep(0.2)
+#         machine.deepsleep(hrsleep)
+#     else:
+#         print(f"deepsleep request {dosleep} {hrsleep}")
+#     return hrsleep
