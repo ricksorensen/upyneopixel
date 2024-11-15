@@ -69,9 +69,10 @@ class Halloween(holiday.Holiday):
         return self.isHoliday
 
     def run(self, *, choice=None):
+        neyeu = len(self.pix) // 15
         selecteyes(
             self.pix,
-            neyes=__neyes,
+            neyes=neyeu,  # __neyes,
             moverate=__mrate,
             ncycles=15,
             blink=True,
