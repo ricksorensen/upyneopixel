@@ -1,9 +1,15 @@
 # from https://github.com/blaz-r/pi_pico_neopixel/blob/main/neopixel.py
-def colorHSVfloat(hue, sat, val, swaprgb=False):
-    return colorHSV(int(hue * 65535), int(sat * 255), int(val * 255), swaprgb=swaprgb)
+def colorHSVfloat(hue, sat, val, swaprgb=False, greenmute=1.0):
+    return colorHSV(
+        int(hue * 65535),
+        int(sat * 255),
+        int(val * 255),
+        swaprgb=swaprgb,
+        greenmute=greenmute,
+    )
 
 
-def colorHSV(hue, sat, val, swaprgb=False):
+def colorHSV(hue, sat, val, swaprgb=False, greenmute=1.0):
     """
     Converts HSV color to rgb tuple and returns it.
     The logic is almost the same as in Adafruit NeoPixel library:
@@ -54,6 +60,7 @@ def colorHSV(hue, sat, val, swaprgb=False):
 
     r = ((((r * s1) >> 8) + s2) * v1) >> 8
     g = ((((g * s1) >> 8) + s2) * v1) >> 8
+    g = int(g * greenmute)
     b = ((((b * s1) >> 8) + s2) * v1) >> 8
 
     return (g, r, b) if swaprgb else (r, g, b)
