@@ -7,4 +7,4 @@ if "nostart" not in os.listdir():
     delaystart = 0
     if machine.reset_cause() != machine.DEEPSLEEP_RESET:
         delaystart = 4
-    sh.start(delayStart=delaystart, interruptStart=False)
+    res = sh.start(delayStart=delaystart, interruptStart=False)
