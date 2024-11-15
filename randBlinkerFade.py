@@ -157,8 +157,8 @@ def runall(pix, npix, faderate=None, fadeamt=1, ctlim=2000):
     return eyes
 
 
-cfwd = [20, 63, 0]
-cbkw = [6, 30, 0]  # [15, 0, 10] [12, 10, 0] [10,35,0],[12,10,0]
+cfwd = [63, 20, 0]  # [20, 63, 0]
+cbkw = [30, 6, 0]  # [6, 30, 0]  # [15, 0, 10] [12, 10, 0] [10,35,0],[12,10,0]
 
 
 def movetwo(pix, npix=20, moverate=10):
@@ -176,11 +176,11 @@ def movetwo(pix, npix=20, moverate=10):
     eyes[1].start(now)
     movet = time.ticks_add(now, moverate * 1000)
     while ct < 600:
-        n = time.ticks_ms()
-        if n >= movet:
+        now = time.ticks_ms()
+        if time.ticks_diff(now, movet) >= 0:
             eyes[0].setpos((eyes[0].pos + 2) % npix)
             eyes[1].setpos((eyes[1].pos - 2) % npix)
-            movet = time.ticks_add(n, moverate * 1000)
+            movet = time.ticks_add(now, moverate * 1000)
         #        for b in eyes:
         #            b.check(n)
         time.sleep(0.1)
@@ -201,8 +201,8 @@ def fly(pix, npix, moverate=10, reverse=False, ctlim=2000, blink=False, deltaeye
     movet = time.ticks_add(now, moveratems)
     sleeptime = moverate / 2.0
     while (ctlim is None) or (ct < ctlim):
-        n = time.ticks_ms()
-        if n >= movet:
+        now = time.ticks_ms()
+        if time.ticks_diff(now, movet) >= 0:
             newpos = (eye.pos + delta) % npix
             if reverse:
                 if delta > 0 and (newpos == 0 or (newpos == npix - 1)):
@@ -216,8 +216,8 @@ def fly(pix, npix, moverate=10, reverse=False, ctlim=2000, blink=False, deltaeye
                     newpos = 0
 
             eye.setpos(newpos)
-            eye.check(n)
-            movet = time.ticks_add(n, moveratems)
+            eye.check(now)
+            movet = time.ticks_add(now, moveratems)
         time.sleep(sleeptime)
         ct = ct + 1
     return eye
@@ -255,8 +255,9 @@ def movesome(
         eye.start(now)
     movet = time.ticks_add(now, moverate * 1000)
     while ctlim is None or ct < ctlim:
-        n = time.ticks_ms()
-        if n >= movet:
+        now = time.ticks_ms()
+        n = time.ticks_diff(now, movet)
+        if n >= 0:
             for i in range(len(eyes)):
                 eye = eyes[i]
                 if random.randint(0, 100) < 5:
@@ -269,7 +270,7 @@ def movesome(
                 else:
                     np = (eye.pos - 2) % npix
                 eye.setpos(np)
-            movet = time.ticks_add(n, moverate * 1000)
+            movet = time.ticks_add(now, moverate * 1000)
         if blink:
             fade = None
             if faderate is not None and (ct % faderate == 0):
