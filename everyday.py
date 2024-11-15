@@ -37,7 +37,9 @@ def crossHue2a(h, nstep=10, b=0.25, reverse=True, swaprgb=False):
     dh = 30 / nstep
     hi = h - 30
     for i in range(nstep):
-        np = colorsupport.colorHSVfloat((int(hi) % 360) / 360, 1, b, swaprgb=swaprgb)
+        np = colorsupport.colorHSVfloat(
+            (int(hi) % 360) / 360, 1, b, swaprgb=swaprgb, greenmute=0.3
+        )
         fwd.append(np)
         hi = hi + 2 * dh
     if reverse:
@@ -121,7 +123,11 @@ class Everyday(Holiday):
             if tout is not None:
                 temphue = mapRange(tout, self.tmin, self.tmax, 220, -40)
                 c = colorsupport.colorHSVfloat(
-                    (int(temphue) % 360) / 360, 1, b, swaprgb=config._SWAPRGB
+                    (int(temphue) % 360) / 360,
+                    1,
+                    b,
+                    swaprgb=config._SWAPRGB,
+                    greenmute=0.3,
                 )
         except:
             print("exception while checking temp sensor")
