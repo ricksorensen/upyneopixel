@@ -14,6 +14,8 @@ endstat = []
 try:
     import esp32
 
+    # wdt=machine.WDT(timeout=10*60*1000)
+    # wdt.feed()
     def check_sleep(pix, dosleep=0.25, start=None, stop=23, everydayu=None):
         global endstat
         dsleept = dosleep if dosleep is not None else 0.25
@@ -47,10 +49,13 @@ try:
             machine.deepsleep(hrsleep)
         else:
             print(f"deepsleep request {dosleep} {hrsleep} {temp}")
-            return hrsleep
+        # wdt.feed()
+        return hrsleep
 
     # esp32.RMT.bitstream_channel(0)  # default is 1
-    esp32.RMT.bitstream_channel(None)  # use bitbanging
+    # esp32.RMT.bitstream_channel(None)  # use bitbanging
+    if config._USEBITBANG:
+        esp32.RMT.bitstream_channel(None)
     haveTemp = True
 except ImportError:
     haveTemp = False
