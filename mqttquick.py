@@ -1,8 +1,5 @@
-# import machine
-# import time
+import time
 import holiday
-
-# import runleds
 
 from umqtt.simple import MQTTClient
 
@@ -36,25 +33,29 @@ def getstart_time(start):
     return rv
 
 
-# def check_sleep(dosleep=False, start=None, npix=300, pixpin=2):
-#     dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
-#     hrsleep = 8 * 3600 * 1000
-#     hrnow = dt[3] + (dt[4] / 60)
-#     stime = getstart_time(start)
-#     print(f" {dt}.   DS {stime}")
-#     if hrnow < stime:
-#         hrsleep = int(min(8, stime - hrnow) * 3600 * 1000)
-#     elif dt[3] < 23:
-#         hrsleep = 0
-#     if dosleep and (hrsleep > 0):
-#         print(f"mqtt deepsleep active {hrsleep}")
-#         if npix is not None:
-#             pix = runleds.test_setup(npix, pin=pixpin)
-#             pix.fill((0, 0, 0))
-#             pix.write()
-#         msgalert(hrsleep, hrnow)
-#         time.sleep(0.2)
-#         machine.deepsleep(hrsleep)
-#     else:
-#         print(f"deepsleep request {dosleep} {hrsleep}")
-#     return hrsleep
+_dostop = False
+
+
+def _sub_cb(topic, msg):
+    global _dostop
+    _dostop = b"stop" in msg
+
+
+# remember to send message as retained
+def checkstop(topic=b"alert/control"):
+    global _dostop
+    _dostop = False
+    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
+    mqttc.set_callback(_sub_cb)
+    mqttc.connect()
+    mqttc.subscribe(topic)
+    ts = time.ticks_ms()
+    while time.ticks_diff(time.ticks_ms(), ts) < 3000:
+        mqttc.check_msg()
+        if _dostop:
+            # reset message
+            mqttc.publish(topic, b"okay", retain=True)
+            break
+        time.sleep(1)
+    mqttc.disconnect()
+    return _dostop
