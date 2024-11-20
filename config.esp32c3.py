@@ -14,4 +14,4 @@ _DEEPSLEEP = 0.5  # check every 30 minutes
 _DSLEEP_START = 16.75  # Time to wake from sleep , fractional hour, local STANDARD time
 _DSLEEP_STOP = 22.75
 _RANDOM_RATIO = 10
-_USEBITBANG = True
+_USEBITBANG = False
