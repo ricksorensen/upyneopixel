@@ -10,7 +10,7 @@ MP_PORT=
 
 # mcu:  options are samd, rp2, esp32c3, nrf
 MP_MCU=esp32c3
-DO_START=
+DO_START=0
 STARTMODULE=main.holiday.py
 
 MAIN = startholiday.py
@@ -18,7 +18,7 @@ LEDSEQ = everyday.py holiday.py runleds.py twinkle.py cpixels.py halloween.py
 PYMODULE = colorsupport.py mqttquick.py netconnect.py webrepl_cfg.py randBlinkerFade.py
 CFIGMODULE = config.$(MP_MCU).py
 
-%.mpy: libs/%.py
+%.mpy: lib/%.py
 	mpy-cross -o $@ $<
 
 %.mpy: %.py
@@ -34,7 +34,7 @@ upload: $(MAIN) $(LEDSEQ) $(PYMODULE) $(CFIGMODULE)
 ifneq "$(STARTMODULE)" ""
 	mpremote $(MP_PORT) cp $(STARTMODULE) :main.py
 endif
-ifeq  "$(DO_START)" ""
+ifneq  "$(DO_START)" "1"
 	mpremote $(MP_PORT) cp nostart :nostart
 endif
 
