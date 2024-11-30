@@ -45,7 +45,9 @@ class Hanukkah(Holiday):
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = rjslocaltime()
-        self.isHoliday = (dt[0] == 2024) and (dt[1] == 12) and (7 <= dt[2] <= 15)
+        self.isHoliday = ((dt[0] == 2024) and (dt[1] == 12) and (26 <= dt[2])) or (
+            (dt[0] == 2025) and (dt[1] == 1) and (2 <= dt[2])
+        )
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
