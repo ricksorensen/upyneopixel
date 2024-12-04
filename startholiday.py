@@ -75,11 +75,14 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
         print("time start up interrupt")
         time.sleep(60)
     allokay = False
+    hardsleep = config._DEEPSLEEP  # should read from config.py
     if config._USE_NETWORK:
         print("starting webrepl ", config._IP_ADDR)
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
+        if mqttquick.checkstop():
+            return "Stopped by mqtt message"
         while allokay and (delayStart > 0) and (os.dupterm(None) is None):
             print("wait for WebREPL connection")
             time.sleep(30)
@@ -111,7 +114,8 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                             endstat.append(f"ntp timeout {retry}")
                             endstat.append(ntpexcept)
                             if retry == 0:
-                                esp32.RMT.bitstream_channel(1)
+                                if config._USEBITBANG:
+                                    esp32.RMT.bitstream_channel(1)
                                 pix.fill((0, 0, 0))
                                 pix.write()
                                 raise ntpexcept
@@ -140,7 +144,7 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                 endstat.append("RTC time used")
             endstat.append(f"date: {dt}")
             print(dt)
-            hardsleep = config._DEEPSLEEP  # should read from config.py
+
             stoptime = config._DSLEEP_STOP if hasattr(config, "_DSLEEP_STOP") else 23
             if haveTemp:
                 tmcu = esp32.mcu_temperature()
@@ -236,7 +240,8 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
             endstat.append("Unexpected Exception")
             endstat.append(unexpected)
             sys.print_exception(unexpected)
-            esp32.RMT.bitstream_channel(1)
+            if config._USEBITBANG:
+                esp32.RMT.bitstream_channel(1)
             pix.fill((0, 0, 0))
             pix.write()
     else:
