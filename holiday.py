@@ -74,7 +74,15 @@ class Hanukkah(Holiday):
 class Christmas(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
         # self.data = cbytes.hls_g_r_b_med if len(pix) > 75 else cbytes.hsv_g_r_b
-        self.data = cpixels.hls_g_r_med_a if len(pix) > 75 else cpixels.hsv_g_r_a
+        self.data = runleds.test_dataa(
+            expscale=6, b=0.25, pixlen=len(pix), ci=0, reverse=False
+        )
+        self.data = (
+            self.data
+            + runleds.test_dataa(
+                expscale=6, b=0.25, pixlen=len(pix), ci=1, reverse=False
+            )[::-1]
+        )
         if sf is not None:
             self.data = runleds.scale_pixels(self.data, sf)
         self.twinkdata = twinkle.christmas_col
