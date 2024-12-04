@@ -26,7 +26,7 @@ def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
     return cu
 
 
-@micropython.native
+# @micropython.native
 def fillpixel(src, leds, start=0, clear=True):
     if clear:
         leds.fill((0, 0, 0))
@@ -111,16 +111,9 @@ def test_dataa(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
     step = min(pixlen // norm - 5, 50 // norm)
     fwd = dofade_exp(ci=ci, nstep=step, b=b, expscale=expscale)
     print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
-    alld = []
-    for x in fwd:
-        alld.extend(x)
     if reverse:
-        bkwd = fwd.copy()
-        bkwd.reverse()
-
-        for x in bkwd:
-            alld.extend(x)
-    return alld
+        fwd = fwd + fwd[::-1]
+    return fwd
 
 
 def scale_pixels(pdata, sf=0.5):
