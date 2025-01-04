@@ -38,7 +38,7 @@ class Holiday:
 
 class Hanukkah(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
-        self.data = runleds.test_dataa(expscale=6, b=0.25, pixlen=len(pix))
+        self.data = runleds.test_dataa(expscale=6, b=0.3, pixlen=len(pix), reverse=True)
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
         self.twinkdata = twinkle.hanukkah_col
 
@@ -46,8 +46,12 @@ class Hanukkah(Holiday):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = ((dt[0] == 2024) and (dt[1] == 12) and (26 <= dt[2])) or (
-            (dt[0] == 2025) and (dt[1] == 1) and (2 <= dt[2])
+            (dt[0] == 2025) and (dt[1] == 1) and (2 >= dt[2])
         )
+        if (not self.isHoliday) and (len(dt) > 3):
+            self.isHoliday = (
+                (dt[0] == 2024) and (dt[1] == 12) and (25 == dt[2]) and (dt[3] > 16)
+            )
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
@@ -195,6 +199,7 @@ class Birthday(Holiday):
         (8, 29),  # Max
         (9, 26),  # Mendel
         (12, 18),  # Rick
+        (12, 31),  # NYE
     ]
 
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
@@ -213,8 +218,7 @@ class Birthday(Holiday):
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = rjslocaltime()
-
-        self.isHoliday = Birthday.chkBday(dt)
+        self.isHoliday = (dt[1:3] == (12, 31)) or Birthday.chkBday(dt)
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
