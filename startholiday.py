@@ -182,6 +182,7 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                 ),
             )
             birthday = holiday.Birthday(pix, dur=config._LONG_DUR)
+            nyeve = holiday.Birthday(pix, dur=config._LONG_DUR, bright=0.5)
             halloeve = halloween.Halloween(pix)
             fallback = everyday.Everyday(
                 pix,
@@ -209,7 +210,8 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
             endstat.append("holidays created")
             while True:
                 didholiday = (
-                    birthday.chkDate(dt=dt, run=True)
+                    nyeve.chkDate(dt=dt, run=True)
+                    or birthday.chkDate(dt=dt, run=True)
                     or hanukkah.chkDate(dt=dt, run=True)
                     or valentine.chkDate(dt=dt, run=True)
                     or christmas.chkDate(dt=dt, run=True)
