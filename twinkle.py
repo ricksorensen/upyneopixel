@@ -31,7 +31,8 @@ green_r = round(0 * brightness)
 green_g = round(255 * brightness)
 green_b = round(25 * brightness)
 
-hanukkah_col = [[blue_r, blue_g, blue_b], [white_r, white_g, white_b]]
+# hanukkah_col = [[blue_r, blue_g, blue_b], [white_r, white_g, white_b]]
+hanukkah_col = [[0, 0, 76], [75, 55, 55]]
 christmas_col = [[red_r, red_g, red_b], [green_r, green_g, green_b]]
 valentine_col = [[red_r, red_g, red_b], [white_r, white_g, white_b]]
 stpat_col = [[green_r, green_g, green_b], [white_r, white_g, white_b]]
