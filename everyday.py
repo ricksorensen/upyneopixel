@@ -1,4 +1,4 @@
-from holiday import Holiday
+from holiday import Holiday, rjslocaltime
 import runleds
 import colorsupport
 import onewire
@@ -74,6 +74,7 @@ class Everyday(Holiday):
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
     def run(self, *, sf=None, choice=None, correct=0):
+        tod = rjslocaltime()
         try:
             tout, tmcu = get_temp(
                 self.tmin,
@@ -99,14 +100,25 @@ class Everyday(Holiday):
             nrand = len(self.pix) // 3
 
         print("everyday t={}, texternal={}, tmcu={}+{}".format(t, tout, tmcu, correct))
-        runleds.loop_led_time(
-            self.pix,
-            self.data,
-            tdur_secs=self.dur,
-            sclr=True,
-            nrandom=nrand,
-            bright=self.bright,
-        )
+        if (tod[4] % 15) < 5:
+            runleds.loop_led_time(
+                self.pix,
+                self.data,
+                tdur_secs=self.dur,
+                sclr=True,
+                nrandom=nrand,
+                bright=self.bright,
+            )
+        else:
+            runleds.loop_led_time(
+                self.pix,
+                None,
+                tdur_secs=self.dur,
+                sclr=True,
+                nrandom=len(self.pix) // 3,
+                bright=self.bright,
+            )
+
         return t
 
     def getTempColor(self, b=0.2):
