@@ -53,7 +53,7 @@ class Everyday(Holiday):
         self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None, fixtemp=None
     ):
         self.data = None
-        self.tmin = -15
+        self.tmin = -25
         self.tmax = 35
         self.tempsens = None
         self.fixtemp = fixtemp
