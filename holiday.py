@@ -128,7 +128,7 @@ class Valentine(Holiday):
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = rjslocaltime()
-        self.isHoliday = (dt[1] == 2) and (14 == dt[2])
+        self.isHoliday = (dt[1] == 2) and ((14 == dt[2]) or (13 == dt[2]))
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
@@ -161,7 +161,7 @@ class SaintPatrick(Holiday):
     def chkDate(self, dt=None, run=False):
         if dt is None:
             dt = rjslocaltime()
-        self.isHoliday = (dt[1] == 3) and (17 == dt[2])
+        self.isHoliday = (dt[1] == 3) and ((17 == dt[2]) or (16 == dt[2]))
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
