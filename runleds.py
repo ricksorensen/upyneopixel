@@ -95,7 +95,8 @@ def loop_led_time(
 
 
 def test_setup(npix=300, pin=2, swaprgb=False):
-    pix = neopixel.NeoPixel(machine.Pin(pin), npix, timing=1)
+    # pix = neopixel.NeoPixel(machine.Pin(pin), npix, timing=1)
+    pix = neopixel.NeoPixel(machine.Pin(pin), npix, timing=(300, 700, 700, 300))
     if swaprgb:
         pix.ORDER = (0, 1, 2, 3)  # neopixel.NeoPixel.ORDER default is  (1, 0, 2, 3)
     pix.fill((0, 0, 0))
