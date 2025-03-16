@@ -81,8 +81,12 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
-        if mqttquick.checkstop():
+        cstop, cstart = mqttquick.checkcontrol()
+        if cstop:
             return "Stopped by mqtt message"
+        if cstart:
+            hardsleep = None
+            print("Forcing pattern start from mqtt message")
         while allokay and (delayStart > 0) and (os.dupterm(None) is None):
             print("wait for WebREPL connection")
             time.sleep(30)
@@ -204,7 +208,6 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                 )
                 > 0
             ):
-
                 time.sleep(10)
             print(" Allocate memory :", gc.mem_free())
             endstat.append("holidays created")
@@ -246,6 +249,7 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                 esp32.RMT.bitstream_channel(1)
             pix.fill((0, 0, 0))
             pix.write()
+            mqttquick.sendmsg(endstat[-1])
     else:
         print("Not All OKAY")
         endstat.append("Not ALL OKAY")
