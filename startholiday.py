@@ -16,7 +16,9 @@ try:
 
     # wdt=machine.WDT(timeout=10*60*1000)
     # wdt.feed()
-    def check_sleep(pix, dosleep=0.25, start=None, stop=23, everydayu=None):
+    def check_sleep(
+        pix, dosleep=0.25, start=None, stop=23, everydayu=None, debug=False
+    ):
         global endstat
         dsleept = dosleep if dosleep is not None else 0.25
         dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
@@ -46,7 +48,9 @@ try:
             endstat.append("deepsleep active")
             mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic="x")
             time.sleep(0.2)
-            machine.deepsleep(hrsleep)
+            if not debug:
+                machine.deepsleep(hrsleep)
+            hrsleep = -1
         else:
             print(f"deepsleep request {dosleep} {hrsleep} {temp}")
         # wdt.feed()
@@ -69,13 +73,16 @@ if config._USE_NETWORK:
     import ntptime
 
 
-def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
+def start(
+    interruptStart=True, delayStart=0, force_date=None, fixtemp=None, debug=False
+):
     global endstat
     if interruptStart:
         print("time start up interrupt")
         time.sleep(60)
     allokay = False
     hardsleep = config._DEEPSLEEP  # should read from config.py
+    starttime = config._DSLEEP_START
     if config._USE_NETWORK:
         print("starting webrepl ", config._IP_ADDR)
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
@@ -85,7 +92,8 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
         if cstop:
             return "Stopped by mqtt message"
         if cstart:
-            hardsleep = None
+            # hardsleep = None
+            starttime = 0
             print("Forcing pattern start from mqtt message")
         while allokay and (delayStart > 0) and (os.dupterm(None) is None):
             print("wait for WebREPL connection")
@@ -202,13 +210,17 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                 check_sleep(
                     pix,
                     dosleep=hardsleep,
-                    start=config._DSLEEP_START,
+                    start=starttime,
                     stop=stoptime,
                     everydayu=fallback,
+                    debug=debug,
                 )
-                > 0
+                < 0
             ):
-                time.sleep(10)
+                endstat.append("DeepSleep .. Debug")
+                return endstat
+            hardsleep = config._DEEPSLEEP
+
             print(" Allocate memory :", gc.mem_free())
             endstat.append("holidays created")
             while True:
@@ -232,13 +244,15 @@ def start(interruptStart=True, delayStart=0, force_date=None, fixtemp=None):
                     check_sleep(
                         pix,
                         dosleep=hardsleep,
-                        start=config._DSLEEP_START,
+                        start=starttime,
                         stop=stoptime,
                         everydayu=fallback,
+                        debug=debug,
                     )
-                    > 0
+                    < 0
                 ):
-                    time.sleep(10)
+                    endstat.append("DeepSleep .. Debug")
+                    return endstat
         except Exception as unexpected:
             import sys
 
