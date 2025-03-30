@@ -33,42 +33,37 @@ def getstart_time(start):
     return rv
 
 
-_dostop = False
-_newstart = False
+_controlstate = 0
 
 
 def _sub_cb(topic, msg):
-    global _dostop
-    global _newstart
-    _dostop = b"stop" in msg
-    _newstart = b"start" in msg
+    global _controlstate
+    if b"stop" in msg:
+        _controlstate = 1
+    elif b"start" in msg:
+        _controlstate = 2
     # print(topic + " sub_cb " + msg)
 
 
 # remember to send message as retained
 def checkcontrol(topic=b"alert/control"):
-    global _newstart
-    global _dostop
+    global _controlstate
     mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
     mqttc.set_callback(_sub_cb)
     mqttc.connect()
     mqttc.subscribe(topic)
     ts = time.ticks_ms()
-    dostp = False
-    dostr = False
+    newcontrol = _controlstate
     while time.ticks_diff(time.ticks_ms(), ts) < 3000:
         mqttc.check_msg()
-        if _newstart or _dostop:
-            # reset message
-            # mqttc.set_callback(None)
-            dostr = _newstart
-            dostp = _dostop
+        if _controlstate != newcontrol:
+            newcontrol = _controlstate
             mqttc.publish(topic, b"okay", retain=True)
             break
         time.sleep(0.5)
     mqttc.disconnect()
     # print(f"checkcontrol stop={dostp}  start={dostr}")
-    return dostp, dostr
+    return newcontrol
 
 
 def sendmsg(msg, topic=b"alert/message"):
