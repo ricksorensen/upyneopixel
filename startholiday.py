@@ -88,10 +88,10 @@ def start(
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
-        cstop, cstart = mqttquick.checkcontrol()
-        if cstop:
+        controlmsg = mqttquick.checkcontrol("alert/control")
+        if controlmsg == 1:
             return "Stopped by mqtt message"
-        if cstart:
+        elif controlmsg == 2:
             # hardsleep = None
             starttime = 0
             print("Forcing pattern start from mqtt message")
@@ -196,6 +196,16 @@ def start(
             birthday = holiday.Birthday(pix, dur=config._LONG_DUR)
             nyeve = holiday.Birthday(pix, dur=config._LONG_DUR, bright=0.5)
             halloeve = halloween.Halloween(pix)
+            aprilfool = everyday.Aprilfool(
+                pix,
+                dur=config._LONG_DUR,
+                fixtemp=35,
+                nrandom=(
+                    (len(pix) // config._RANDOM_RATIO)
+                    if config._RANDOM_RATIO is not None
+                    else None
+                ),
+            )
             fallback = everyday.Everyday(
                 pix,
                 dur=config._LONG_DUR,
@@ -232,6 +242,7 @@ def start(
                     or christmas.chkDate(dt=dt, run=True)
                     or stpats.chkDate(dt=dt, run=True)
                     or halloeve.chkDate(dt=dt, run=True)
+                    or aprilfool.chkDate(dt=dt, run=True)
                     or fallback.run(
                         correct=config._TEMP_CORRECT,
                     )

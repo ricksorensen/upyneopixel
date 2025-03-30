@@ -144,3 +144,18 @@ class Everyday(Holiday):
         except:
             print("exception while checking temp sensor")
         return c, tout
+
+
+class Aprilfool(Everyday):
+
+    def run(self):
+        print("April Fools")
+        super().run()
+
+    def chkDate(self, dt=None, run=False):
+        if dt is None:
+            dt = rjslocaltime()
+        self.isHoliday = (dt[1] == 4) and (dt[2] == 1)
+        if self.isHoliday and run:
+            self.run()
+        return self.isHoliday
