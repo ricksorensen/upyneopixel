@@ -8,6 +8,7 @@ import os
 import gc
 import config
 import machine
+import random
 
 endstat = []
 
@@ -19,7 +20,6 @@ try:
     def check_sleep(
         pix, dosleep=0.25, start=None, stop=23, everydayu=None, debug=False
     ):
-        global endstat
         dsleept = dosleep if dosleep is not None else 0.25
         dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
         hrsleep = int(dsleept * 3600 * 1000)
@@ -36,8 +36,8 @@ try:
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
                 c, temp = everydayu.getTempColor(b=0.1)
                 print("Setting day temp  ", c)
-                lp = len(pix) - 60
-                for i in range(lp, len(pix)):
+                lp = random.randint(0, len(pix) - 60)
+                for i in range(lp, lp + 60):
                     pix[i] = c
             else:
                 print("no everydayu passed")
@@ -76,7 +76,6 @@ if config._USE_NETWORK:
 def start(
     interruptStart=True, delayStart=0, force_date=None, fixtemp=None, debug=False
 ):
-    global endstat
     if interruptStart:
         print("time start up interrupt")
         time.sleep(60)
