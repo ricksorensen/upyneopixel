@@ -43,6 +43,13 @@ try:
                 print("no everydayu passed")
             if hrsleep > 0:
                 pix.write()
+        chklight = machine.ADC(
+            machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB
+        )
+        light_uv = 0
+        for _ in range(20):
+            light_uv = chklight.read_uv()
+        mqttquick.msgspecial(f"{light_uv}", "alert/lightval")
         if (dosleep is not None) and (hrsleep > 0):
             print(f"deepsleep active {hrsleep} {temp}")
             endstat.append("deepsleep active")

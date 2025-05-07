@@ -20,6 +20,20 @@ def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
     mqttc.disconnect()
 
 
+def msgspecial(msgin, topic):
+    tnow = holiday.rjslocaltime(tzoff=-6)
+    msg = (
+        "{:04d}{:02d}{:02d}{:02d}{:02d}: ".format(
+            tnow[0], tnow[1], tnow[2], tnow[3], tnow[4]
+        )
+        + msgin
+    )
+    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
+    mqttc.connect()
+    mqttc.publish(topic, msg, retain=True)
+    mqttc.disconnect()
+
+
 def getstart_time(start):
     rv = start
     if rv is None:
