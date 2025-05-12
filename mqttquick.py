@@ -34,19 +34,6 @@ def msgspecial(msgin, topic):
     mqttc.disconnect()
 
 
-def getstart_time(start):
-    rv = start
-    if rv is None:
-        dt = holiday.rjslocaltime(tzoff=-6)
-        if (dt[1] > 10) or (dt[1] < 4):
-            rv = 17
-        elif (dt[1] > 8) or (dt[1] < 6):
-            rv = 18
-        else:
-            rv = 19
-    return rv
-
-
 _controlstate = 0
 
 
@@ -61,7 +48,7 @@ def _sub_cb(topic, msg):
 
 # remember to send message as retained
 def checkcontrol(topic=b"alert/control"):
-    global _controlstate
+    _controlstate
     mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
     mqttc.set_callback(_sub_cb)
     mqttc.connect()
@@ -80,8 +67,8 @@ def checkcontrol(topic=b"alert/control"):
     return newcontrol
 
 
-def sendmsg(msg, topic=b"alert/message"):
+def sendmsg(msg, topic=b"alert/message", addtopic=""):
     mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
     mqttc.connect()
-    mqttc.publish(topic, msg, retain=True)
+    mqttc.publish(topic + addtopic, msg, retain=True)
     mqttc.disconnect()
