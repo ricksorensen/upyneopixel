@@ -7,72 +7,10 @@ import time
 import os
 import gc
 import config
-import machine
-import random
+import checkstart
+import esp32
 
 endstat = []
-
-try:
-    import esp32
-
-    # wdt=machine.WDT(timeout=10*60*1000)
-    # wdt.feed()
-    def check_sleep(
-        pix, dosleep=0.25, start=None, stop=23, everydayu=None, debug=False
-    ):
-        dsleept = dosleep if dosleep is not None else 0.25
-        dt = holiday.rjslocaltime(tzoff=-6)  # time.localtime()
-        hrsleep = int(dsleept * 3600 * 1000)
-        hrnow = dt[3] + (dt[4] / 60)
-        stime = mqttquick.getstart_time(start)
-        print(f" {dt}.   DS {stime}")
-        if hrnow < stime:
-            hrsleep = int(min(dsleept, stime - hrnow) * 3600 * 1000)
-        elif hrnow < stop:  # assumes stop not past midnight
-            hrsleep = 0
-        temp = None
-        if pix is not None:
-            pix.fill((0, 0, 0))
-            if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
-                c, temp = everydayu.getTempColor(b=0.1)
-                print("Setting day temp  ", c)
-                lp = random.randint(0, len(pix) - 60)
-                for i in range(lp, lp + 60):
-                    pix[i] = c
-            else:
-                print("no everydayu passed")
-            if hrsleep > 0:
-                pix.write()
-        chklight = machine.ADC(
-            machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB
-        )
-        light_uv = 0
-        for _ in range(20):
-            light_uv = chklight.read_uv()
-        mqttquick.msgspecial(f"{light_uv}", "alert/lightval")
-        if (dosleep is not None) and (hrsleep > 0):
-            print(f"deepsleep active {hrsleep} {temp}")
-            endstat.append("deepsleep active")
-            mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic="x")
-            time.sleep(0.2)
-            if not debug:
-                machine.deepsleep(hrsleep)
-            hrsleep = -1
-        else:
-            print(f"deepsleep request {dosleep} {hrsleep} {temp}")
-        # wdt.feed()
-        return hrsleep
-
-    # esp32.RMT.bitstream_channel(0)  # default is 1
-    # esp32.RMT.bitstream_channel(None)  # use bitbanging
-    if config._USEBITBANG:
-        esp32.RMT.bitstream_channel(None)
-    haveTemp = True
-except ImportError:
-    haveTemp = False
-
-    def check_sleep(pix, dosleep=False, start=None, stop=23, everydayu=None):
-        return 0
 
 
 if config._USE_NETWORK:
@@ -89,17 +27,20 @@ def start(
     allokay = False
     hardsleep = config._DEEPSLEEP  # should read from config.py
     starttime = config._DSLEEP_START
+    check_sleep = checkstart.setCheckStart(lightSensor=config._DAYNIGHT_ON)
+
     if config._USE_NETWORK:
         print("starting webrepl ", config._IP_ADDR)
         allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
-        controlmsg = mqttquick.checkcontrol("alert/control")
+        controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
         if controlmsg == 1:
             return "Stopped by mqtt message"
         elif controlmsg == 2:
             # hardsleep = None
             starttime = 0
+            check_sleep = checkstart.setCheckStart(lightSensor=False)
             print("Forcing pattern start from mqtt message")
         while allokay and (delayStart > 0) and (os.dupterm(None) is None):
             print("wait for WebREPL connection")
@@ -132,8 +73,6 @@ def start(
                             endstat.append(f"ntp timeout {retry}")
                             endstat.append(ntpexcept)
                             if retry == 0:
-                                if config._USEBITBANG:
-                                    esp32.RMT.bitstream_channel(1)
                                 pix.fill((0, 0, 0))
                                 pix.write()
                                 raise ntpexcept
@@ -162,15 +101,7 @@ def start(
                 endstat.append("RTC time used")
             endstat.append(f"date: {dt}")
             print(dt)
-
             stoptime = config._DSLEEP_STOP if hasattr(config, "_DSLEEP_STOP") else 23
-            if haveTemp:
-                tmcu = esp32.mcu_temperature()
-                tmcu = esp32.mcu_temperature()
-                print("temp ", tmcu)
-            else:
-                print("no temperature available")
-
             hanukkah = holiday.Hanukkah(
                 pix,
                 dur=config._HAN_DUR,
@@ -254,8 +185,6 @@ def start(
                     )
                 )
                 print("free mem: ", gc.mem_free())
-                if haveTemp:
-                    print("temp: ", esp32.mcu_temperature())
                 gc.collect()
                 if (
                     check_sleep(
@@ -276,12 +205,14 @@ def start(
             endstat.append("Unexpected Exception")
             endstat.append(unexpected)
             sys.print_exception(unexpected)
-            if config._USEBITBANG:
-                esp32.RMT.bitstream_channel(1)
             pix.fill((0, 0, 0))
             pix.write()
-            mqttquick.sendmsg(endstat[-1])
+            mqttquick.sendmsg(endstat[-1], addtopic=config._SUFFIX)
     else:
         print("Not All OKAY")
         endstat.append("Not ALL OKAY")
+
+    if config._USEBITBANG:
+        esp32.RMT.bitstream_channel(1)
+
     return endstat
