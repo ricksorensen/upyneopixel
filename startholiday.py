@@ -102,6 +102,7 @@ def start(
             endstat.append(f"date: {dt}")
             print(dt)
             stoptime = config._DSLEEP_STOP if hasattr(config, "_DSLEEP_STOP") else 23
+            brightlevel = checkstart.getBrightness()
             hanukkah = holiday.Hanukkah(
                 pix,
                 dur=config._HAN_DUR,
@@ -110,16 +111,19 @@ def start(
                     if config._RANDOM_RATIO is not None
                     else None
                 ),
+                bright=brightlevel,
             )
             valentine = holiday.Valentine(
                 pix,
                 dur=config._HAN_DUR,
                 nrandom=None,
+                bright=brightlevel,
             )
             stpats = holiday.SaintPatrick(
                 pix,
                 dur=config._HAN_DUR,
                 nrandom=None,
+                bright=brightlevel,
             )
             christmas = holiday.Christmas(
                 pix,
@@ -129,10 +133,14 @@ def start(
                     if config._RANDOM_RATIO is not None
                     else None
                 ),
+                bright=brightlevel,
             )
-            birthday = holiday.Birthday(pix, dur=config._LONG_DUR)
+            birthday = holiday.Birthday(pix, dur=config._LONG_DUR, bright=brightlevel)
             nyeve = holiday.Birthday(pix, dur=config._LONG_DUR, bright=0.5)
-            halloeve = halloween.Halloween(pix)
+            halloeve = halloween.Halloween(
+                pix,
+                bright=brightlevel,
+            )
             aprilfool = everyday.Aprilfool(
                 pix,
                 dur=config._LONG_DUR,
@@ -142,6 +150,7 @@ def start(
                     if config._RANDOM_RATIO is not None
                     else None
                 ),
+                bright=brightlevel,
             )
             fallback = everyday.Everyday(
                 pix,
@@ -152,6 +161,7 @@ def start(
                     if config._RANDOM_RATIO is not None
                     else None
                 ),
+                bright=brightlevel,
             )
             if (
                 check_sleep(
@@ -171,17 +181,20 @@ def start(
             print(" Allocate memory :", gc.mem_free())
             endstat.append("holidays created")
             while True:
+                brightlevel = checkstart.getBrightness()
+                print(f"Brightness: {brightlevel}")
                 didholiday = (
                     nyeve.chkDate(dt=dt, run=True)
-                    or birthday.chkDate(dt=dt, run=True)
-                    or hanukkah.chkDate(dt=dt, run=True)
-                    or valentine.chkDate(dt=dt, run=True)
-                    or christmas.chkDate(dt=dt, run=True)
-                    or stpats.chkDate(dt=dt, run=True)
-                    or halloeve.chkDate(dt=dt, run=True)
-                    or aprilfool.chkDate(dt=dt, run=True)
+                    or birthday.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or hanukkah.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or valentine.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or christmas.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or stpats.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or halloeve.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or aprilfool.chkDate(dt=dt, run=True, bright=brightlevel)
                     or fallback.run(
                         correct=config._TEMP_CORRECT,
+                        bright=brightlevel,
                     )
                 )
                 print("free mem: ", gc.mem_free())
