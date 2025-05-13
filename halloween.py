@@ -60,7 +60,7 @@ class Halloween(holiday.Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = holiday.rjslocaltime()
         self.isHoliday = (dt[1] == 10) and (dt[2] >= 25)
@@ -68,7 +68,9 @@ class Halloween(holiday.Holiday):
             self.run()
         return self.isHoliday
 
-    def run(self, *, choice=None):
+    def run(self, *, choice=None, bright=None):
+        if bright is None:
+            bright = self.bright
         neyeu = len(self.pix) // 15
         selecteyes(
             self.pix,

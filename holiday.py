@@ -29,7 +29,7 @@ class Holiday:
     def setHoliday(self, isHoliday):
         self.isHoliday = isHoliday
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         return False
 
     def run(self):
@@ -42,7 +42,7 @@ class Hanukkah(Holiday):
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
         self.twinkdata = twinkle.hanukkah_col
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = ((dt[0] == 2024) and (dt[1] == 12) and (26 <= dt[2])) or (
@@ -53,7 +53,7 @@ class Hanukkah(Holiday):
                 (dt[0] == 2024) and (dt[1] == 12) and (25 == dt[2]) and (dt[3] > 16)
             )
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday
 
     def run(self, *, choice=None):
@@ -92,12 +92,12 @@ class Christmas(Holiday):
         self.twinkdata = twinkle.christmas_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = dt[1] == 12
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday
 
     def run(self, *, sf=None, choice=None):
@@ -125,12 +125,12 @@ class Valentine(Holiday):
         self.twinkdata = twinkle.valentine_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = (dt[1] == 2) and ((14 == dt[2]) or (13 == dt[2]))
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday
 
     def run(self, *, sf=None, choice=None):
@@ -158,12 +158,12 @@ class SaintPatrick(Holiday):
         self.twinkdata = twinkle.stpat_col
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = (dt[1] == 3) and ((17 == dt[2]) or (16 == dt[2]))
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday
 
     def run(self, *, sf=None, choice=None):
@@ -215,21 +215,23 @@ class Birthday(Holiday):
                 return True
         return rv
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = (dt[1:3] == (12, 31)) or Birthday.chkBday(dt)
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday
 
-    def run(self, *, sf=None, choice=None):
+    def run(self, *, sf=None, choice=None, bright=None):
         print("birthday")
+        if bright is None:
+            bright = self.bright
         runleds.loop_led_time(
             self.pix,
             self.data,
             tdur_secs=self.dur,
             sclr=True,
             nrandom=self.nrandom,
-            bright=self.bright,
+            bright=bright,
         )

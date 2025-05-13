@@ -18,6 +18,7 @@ _LDR_REPORT = True
 # If True, use LDR to determine on/off
 #    False, use TOD to determing on/off
 _DAYNIGHT_ON = True
+_DEFAULT_BRIGHT = None
 
 _DEEPSLEEP = 0.5  # check every 30 minutes
 _DSLEEP_START = 17  # Time to wake from sleep , fractional hour, local STANDARD time

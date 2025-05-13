@@ -73,7 +73,9 @@ class Everyday(Holiday):
         #    nrandom = len(pix) // 3
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
 
-    def run(self, *, sf=None, choice=None, correct=0):
+    def run(self, *, sf=None, choice=None, correct=0, bright=None):
+        if bright is None:
+            bright = self.bright
         tod = rjslocaltime()
         try:
             tout, tmcu = get_temp(
@@ -107,7 +109,7 @@ class Everyday(Holiday):
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=nrand,
-                bright=self.bright,
+                bright=bright,
             )
         else:
             runleds.loop_led_time(
@@ -116,7 +118,7 @@ class Everyday(Holiday):
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=len(self.pix) // 3,
-                bright=self.bright,
+                bright=bright,
             )
 
         return t
@@ -152,10 +154,10 @@ class Aprilfool(Everyday):
         print("April Fools")
         super().run()
 
-    def chkDate(self, dt=None, run=False):
+    def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = (dt[1] == 4) and (dt[2] == 1)
         if self.isHoliday and run:
-            self.run()
+            self.run(bright=bright)
         return self.isHoliday

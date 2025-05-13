@@ -16,11 +16,12 @@ _LDR_REPORT = True
 
 # If True, use LDR to determine on/off
 #    False, use TOD to determing on/off
-_DAYNIGHT_ON = True
+_DAYNIGHT_ON = False
+_DEFAULT_BRIGHT = None
 
 _DEEPSLEEP = 0.05  # hour maximum deep sleep time before checking
 # None if no deepsleep
-_DSLEEP_START = 9  # Time to wake from sleep , fractional hour, local STANDARD time
+_DSLEEP_START = 8  # Time to wake from sleep , fractional hour, local STANDARD time
 _DSLEEP_STOP = 23.5
 _RANDOM_RATIO = None
 _USEBITBANG = False
