@@ -50,7 +50,7 @@ try:
         if pix is not None:
             pix.fill((0, 0, 0))
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
-                c, temp = everydayu.getTempColor(b=0.1)
+                c, temp = everydayu.getTempColor(b=getBrightness())
                 print("Setting day temp  ", c)
                 lp = random.randint(0, len(pix) - 60)
                 for i in range(lp, lp + 60):
