@@ -12,7 +12,8 @@ _SWAPRGB = False
 _TEMP_PIN = 21  # xiao pin 7: esp32c3 GPIO21
 
 _LDR_PIN = 4  # xiao pin 2: esp32c3 GPIO04
-_LDR_DARKUV = 1100000  # microvolt to define on dark level
+_LDR_DARKUV = 1100000  # 1100000 for dark # microvolt to define on dark level
+_LDR_TURNON = 170000
 _LDR_REPORT = True
 
 # If True, use LDR to determine on/off
