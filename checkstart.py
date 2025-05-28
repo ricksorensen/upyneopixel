@@ -11,14 +11,14 @@ try:
     # wdt=machine.WDT(timeout=10*60*1000)
     # wdt.feed()
 
-    def getlightlevel():
+    def getlightlevel(report=False):
         chklight = machine.ADC(
             machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB
         )
         light_uv = 0
         for _ in range(20):
             light_uv = chklight.read_uv()
-        if config._LDR_REPORT:
+        if report:
             mqttquick.msgspecial(f"{light_uv}", "alert/lightval" + config._SUFFIX)
         return light_uv
 
@@ -43,8 +43,8 @@ try:
         hrnow = dt[3] + (dt[4] / 60)
         # stime = mqttquick.getstart_time(start)
         # print(f" {dt}.   DS {stime}")
-        light = getlightlevel()
-        if (light > config._LDR_DARKUV) and (8 < hrnow < stop):
+        light = getlightlevel(report=config._LDR_REPORT)
+        if (light > config._LDR_TURNON) and (8 < hrnow < stop):
             hrsleep = 0
         temp = None
         if pix is not None:
@@ -52,14 +52,12 @@ try:
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
                 c, temp = everydayu.getTempColor(b=getBrightness())
                 print("Setting day temp  ", c)
-                lp = random.randint(0, len(pix) - 60)
-                for i in range(lp, lp + 60):
+                for i in range(len(pix) - 60, len(pix)):
                     pix[i] = c
             else:
                 print("no everydayu passed")
-            if hrsleep > 0:
-                pix.write()
         if (dosleep is not None) and (hrsleep > 0):
+            pix.write()
             print(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
             mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
@@ -98,14 +96,13 @@ try:
         elif hrnow < stop:  # assumes stop not past midnight
             hrsleep = 0
         temp = None
-        _ = getlightlevel()
+        _ = getlightlevel(report=config._LDR_REPORT)
         if pix is not None:
             pix.fill((0, 0, 0))
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
                 c, temp = everydayu.getTempColor(b=0.1)
                 print("Setting day temp  ", c)
-                lp = random.randint(0, len(pix) - 60)
-                for i in range(lp, lp + 60):
+                for i in range(len(pix) - 60, len(pix)):
                     pix[i] = c
             else:
                 print("no everydayu passed")
