@@ -191,8 +191,6 @@ def swapGRB(col):
 
 
 def doTwinkle(pixels, twinkledata, tdur_sec=120):
-    global number_of_lights
-    global bug_holder
     global color_opts
     color_opts = twinkledata
     initBugs(pixels)
