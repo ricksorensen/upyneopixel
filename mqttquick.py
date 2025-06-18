@@ -40,15 +40,18 @@ _controlstate = 0
 def _sub_cb(topic, msg):
     global _controlstate
     if b"stop" in msg:
-        _controlstate = 1
+        _controlstate = 0x01
+        if "hard" in msg:
+            _controlstate = 0x05
     elif b"start" in msg:
-        _controlstate = 2
+        _controlstate = 0x02
+        if "hard" in msg:
+            _controlstate = 0x06
     # print(topic + " sub_cb " + msg)
 
 
 # remember to send message as retained
 def checkcontrol(topic=b"alert/control"):
-    _controlstate
     mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
     mqttc.set_callback(_sub_cb)
     mqttc.connect()
@@ -59,12 +62,13 @@ def checkcontrol(topic=b"alert/control"):
         mqttc.check_msg()
         if _controlstate != newcontrol:
             newcontrol = _controlstate
-            mqttc.publish(topic, b"okay", retain=True)
+            if newcontrol & 0x04 == 0:
+                mqttc.publish(topic, b"okay", retain=True)
             break
         time.sleep(0.5)
     mqttc.disconnect()
     # print(f"checkcontrol stop={dostp}  start={dostr}")
-    return newcontrol
+    return newcontrol & 0x03
 
 
 def sendmsg(msg, topic=b"alert/message", addtopic=""):

@@ -36,7 +36,8 @@ def start(
         print("net status: ", allokay)
         controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
         if controlmsg == 1:
-            return "Stopped by mqtt message"
+            endstat.append("Stopped by mqtt message")
+            return endstat
         elif controlmsg == 2:
             # hardsleep = None
             starttime = 0
