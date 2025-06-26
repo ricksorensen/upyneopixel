@@ -2,6 +2,7 @@ import holiday
 import everyday
 import mqttquick
 import halloween
+import fire
 import runleds
 import time
 import os
@@ -35,10 +36,10 @@ def start(
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
         controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
-        if controlmsg == 1:
+        if controlmsg & 0x01 == 1:
             endstat.append("Stopped by mqtt message")
             return endstat
-        elif controlmsg == 2:
+        elif controlmsg & 0x02== 2:
             # hardsleep = None
             starttime = 0
             check_sleep = checkstart.setCheckStart(lightSensor=False)
@@ -142,6 +143,9 @@ def start(
                 pix,
                 bright=brightlevel,
             )
+            dofire = fire.Fire(
+                pix, dur=60000, update=25, top=config._FIRETOP, debug=debug
+            )
             aprilfool = everyday.Aprilfool(
                 pix,
                 dur=config._LONG_DUR,
@@ -185,7 +189,8 @@ def start(
                 brightlevel = checkstart.getBrightness()
                 print(f"Brightness: {brightlevel}")
                 didholiday = (
-                    nyeve.chkDate(dt=dt, run=True)
+                    dofire.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or nyeve.chkDate(dt=dt, run=True)
                     or birthday.chkDate(dt=dt, run=True, bright=brightlevel)
                     or hanukkah.chkDate(dt=dt, run=True, bright=brightlevel)
                     or valentine.chkDate(dt=dt, run=True, bright=brightlevel)
@@ -217,7 +222,7 @@ def start(
             import sys
 
             endstat.append("Unexpected Exception")
-            endstat.append(unexpected)
+            endstat.append(str(unexpected))
             sys.print_exception(unexpected)
             pix.fill((0, 0, 0))
             pix.write()

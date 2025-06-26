@@ -28,3 +28,6 @@ _RANDOM_RATIO = 10
 _USEBITBANG = False
 _DEBUG = False
 _SUFFIX = "main"
+
+# effects
+_FIRETOP = False
