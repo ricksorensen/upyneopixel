@@ -2,6 +2,7 @@ import holiday
 import effect_panel
 import gc
 import time
+import random
 
 
 # duration in milliseconds
@@ -27,9 +28,7 @@ class Fire(holiday.Holiday):
     def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = holiday.rjslocaltime()
-        self.isHoliday = ((dt[1] == 6) and (dt[2] > 24)) or (
-            (dt[1] == 7) and (dt[2] < 5)
-        )
+        self.isHoliday = (dt[1] == 7) and (dt[2] <= 4)
 
         if self.isHoliday and run:
             self.run()
@@ -38,7 +37,8 @@ class Fire(holiday.Holiday):
     def run(self, *, choice=None, bright=None):
         if bright is None:
             bright = self.bright
-        print(f"fire {self.dur} {self.update} {self.top} ")
+        firetop = random.choice([True, False]) if self.top is None else self.top
+        print(f"fire {self.dur} {self.update} {firetop}")
         gc.collect()
         panel = effect_panel.effect_panel(
             self.pix, 36, 2 if len(self.pix) < 200 else 6, ledblock=5
@@ -54,12 +54,12 @@ class Fire(holiday.Holiday):
                 blue=10,
                 speed=128,
                 fade=255,
-                top=self.top,
+                top=firetop,
                 debug=self.debug,
             )
             if ct == 0:
                 panel.flag(
-                    top=not self.top,
+                    top=not firetop,
                     niter=nflgiter,
                     brightness=min(int(bright * 255), 255),
                     debug=self.debug,

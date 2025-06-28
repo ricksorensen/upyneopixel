@@ -27,3 +27,6 @@ _RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = True
 _SUFFIX = "test"
+
+# effects
+_FIRETOP = None
