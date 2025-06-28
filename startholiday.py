@@ -39,7 +39,7 @@ def start(
         if controlmsg & 0x01 == 1:
             endstat.append("Stopped by mqtt message")
             return endstat
-        elif controlmsg & 0x02== 2:
+        elif controlmsg & 0x02 == 2:
             # hardsleep = None
             starttime = 0
             check_sleep = checkstart.setCheckStart(lightSensor=False)
@@ -144,7 +144,11 @@ def start(
                 bright=brightlevel,
             )
             dofire = fire.Fire(
-                pix, dur=60000, update=25, top=config._FIRETOP, debug=debug
+                pix,
+                dur=config._LONG_DUR * 1000,
+                update=25,
+                top=config._FIRETOP,
+                debug=debug,
             )
             aprilfool = everyday.Aprilfool(
                 pix,
