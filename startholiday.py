@@ -145,9 +145,10 @@ def start(
             )
             dofire = fire.Fire(
                 pix,
-                dur=config._LONG_DUR * 1000,
+                dur=config._LONG_DUR * 1000,  # ms
                 update=25,
                 top=config._FIRETOP,
+                fw=None,
                 debug=debug,
             )
             aprilfool = everyday.Aprilfool(
@@ -192,7 +193,7 @@ def start(
             while True:
                 brightlevel = checkstart.getBrightness()
                 print(f"Brightness: {brightlevel}")
-                didholiday = (
+                _ = (
                     dofire.chkDate(dt=dt, run=True, bright=brightlevel)
                     or nyeve.chkDate(dt=dt, run=True)
                     or birthday.chkDate(dt=dt, run=True, bright=brightlevel)
