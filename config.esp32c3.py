@@ -30,4 +30,5 @@ _DEBUG = False
 _SUFFIX = "main"
 
 # effects
-_FIRETOP = False
+_FIRETOP = None
+_EVERYDAY_OPT = "TEMP"
