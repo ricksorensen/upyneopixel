@@ -5,6 +5,7 @@ import onewire
 import ds18x20
 import config
 import machine
+import simpfirefly
 
 try:
     haveTemp = True
@@ -52,6 +53,19 @@ class Everyday(Holiday):
     def __init__(
         self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None, fixtemp=None
     ):
+        self.ffnum = 0
+        self.temp = False
+        try:
+            if "FF" in config._EVERYDAY_OPT:
+                self.ffnum = 20
+                ifn = config._EVERYDAY_OPT.find("FFNUM=")
+                if ifn >= 0:
+                    ife = ifn + config._EVERYDAY_OPT[ifn:].find(",")
+                    self.ffnum = int(config._EVERYDAY_OPT[ifn + 6 : ife])
+            if "TEMP" in config._EVERYDAY_OPT:
+                self.temp = True
+        except AttributeError:
+            self.ffnum = 0
         self.data = None
         self.tmin = -25
         self.tmax = 35
@@ -66,7 +80,7 @@ class Everyday(Holiday):
                 self.tempsens = None
             else:
                 self.tempsens = (tsens, rs[0])
-        except:
+        except Exception:
             self.tempsens = None
             print("exception while checking temp sensor")
         # if nrandom is None:
@@ -101,8 +115,8 @@ class Everyday(Holiday):
             t = None
             nrand = len(self.pix) // 3
 
-        print("everyday t={}, texternal={}, tmcu={}+{}".format(t, tout, tmcu, correct))
-        if (tod[4] % 15) < 5:
+        print("everyday t={},  nff={}".format(tout, self.ffnum))
+        if self.temp and ((tod[4] % 15) < 5):
             runleds.loop_led_time(
                 self.pix,
                 self.data,
@@ -111,16 +125,21 @@ class Everyday(Holiday):
                 nrandom=nrand,
                 bright=bright,
             )
+            # simpfirefly.run_flies(self.pix, num_flashes=20, dur=self.dur, bright=bright)
         else:
-            runleds.loop_led_time(
-                self.pix,
-                None,
-                tdur_secs=self.dur,
-                sclr=True,
-                nrandom=len(self.pix) // 3,
-                bright=bright,
-            )
-
+            if self.ffnum > 0:
+                simpfirefly.run_flies(
+                    self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
+                )
+            else:
+                runleds.loop_led_time(
+                    self.pix,
+                    None,
+                    tdur_secs=self.dur,
+                    sclr=True,
+                    nrandom=len(self.pix) // 3,
+                    bright=bright,
+                )
         return t
 
     def getTempColor(self, b=0.2):
@@ -143,7 +162,7 @@ class Everyday(Holiday):
                     swaprgb=config._SWAPRGB,
                     greenmute=0.3,
                 )
-        except:
+        except Exception:
             print("exception while checking temp sensor")
         return c, tout
 
