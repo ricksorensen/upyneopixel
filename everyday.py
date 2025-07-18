@@ -5,7 +5,11 @@ import onewire
 import ds18x20
 import config
 import machine
+import random
 import simpfirefly
+
+# import boom
+import fwpartx
 
 try:
     haveTemp = True
@@ -55,6 +59,8 @@ class Everyday(Holiday):
     ):
         self.ffnum = 0
         self.temp = False
+        self.fworks = False
+        self.dorand = False
         try:
             if "FF" in config._EVERYDAY_OPT:
                 self.ffnum = 20
@@ -62,8 +68,9 @@ class Everyday(Holiday):
                 if ifn >= 0:
                     ife = ifn + config._EVERYDAY_OPT[ifn:].find(",")
                     self.ffnum = int(config._EVERYDAY_OPT[ifn + 6 : ife])
-            if "TEMP" in config._EVERYDAY_OPT:
-                self.temp = True
+            self.temp = "TEMP" in config._EVERYDAY_OPT
+            self.fworks = "FWORK" in config._EVERYDAY_OPT
+            self.dorand = "RAND" in config._EVERYDAY_OPT
         except AttributeError:
             self.ffnum = 0
         self.data = None
@@ -116,7 +123,8 @@ class Everyday(Holiday):
             nrand = len(self.pix) // 3
 
         print("everyday t={},  nff={}".format(tout, self.ffnum))
-        if self.temp and ((tod[4] % 15) < 5):
+        if self.temp and ((config._EVERYDAY_OPT == "TEMP") or ((tod[4] % 30) < 5)):
+            print(" everyday temp")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
@@ -127,11 +135,14 @@ class Everyday(Holiday):
             )
             # simpfirefly.run_flies(self.pix, num_flashes=20, dur=self.dur, bright=bright)
         else:
-            if self.ffnum > 0:
+            opt = random.randrange(0, 10)
+            if opt < 3 and self.ffnum > 0:
+                print(" everyday firefly")
                 simpfirefly.run_flies(
                     self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
                 )
-            else:
+            elif 3 <= opt < 8 and self.dorand:
+                print(" everyday random")
                 runleds.loop_led_time(
                     self.pix,
                     None,
@@ -140,6 +151,15 @@ class Everyday(Holiday):
                     nrandom=len(self.pix) // 3,
                     bright=bright,
                 )
+            elif opt >= 8 and self.fworks:
+                print(" everyday fireworks")
+                # should be fireworks
+                # boom.doall(self.pix, durms=self.dur * 1000, brightness=bright, dly=2)
+                norm = None
+                # if len(self.pix) < 200:
+                #    norm = 2.4
+                fwpartx.doall(self.pix, vel=80, durms=self.dur * 1000, dly=2, norm=norm)
+                pass
         return t
 
     def getTempColor(self, b=0.2):
@@ -168,7 +188,6 @@ class Everyday(Holiday):
 
 
 class Aprilfool(Everyday):
-
     def run(self):
         print("April Fools")
         super().run()
