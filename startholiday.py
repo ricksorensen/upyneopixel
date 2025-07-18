@@ -32,22 +32,25 @@ def start(
 
     if config._USE_NETWORK:
         print("starting webrepl ", config._IP_ADDR)
-        allokay = netconnect.dowrepl(myIP=config._IP_ADDR)
+        allokay = netconnect.dowrepl(ssid=None, myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
         print("net status: ", allokay)
-        controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
-        if controlmsg & 0x01 == 1:
-            endstat.append("Stopped by mqtt message")
-            return endstat
-        elif controlmsg & 0x02 == 2:
-            # hardsleep = None
-            starttime = 0
-            check_sleep = checkstart.setCheckStart(lightSensor=False)
-            print("Forcing pattern start from mqtt message")
-        while allokay and (delayStart > 0) and (os.dupterm(None) is None):
-            print("wait for WebREPL connection")
-            time.sleep(30)
-            delayStart = delayStart - 1
+        config._USE_NETWORK = allokay
+        if allokay:
+            controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
+            if controlmsg & 0x01 == 1:
+                endstat.append("Stopped by mqtt message")
+                return endstat
+            elif controlmsg & 0x02 == 2:
+                # hardsleep = None
+                starttime = 0
+                check_sleep = checkstart.setCheckStart(lightSensor=False)
+                print("Forcing pattern start from mqtt message")
+            while allokay and (delayStart > 0) and (os.dupterm(None) is None):
+                print("wait for WebREPL connection")
+                time.sleep(30)
+                delayStart = delayStart - 1
+        allokay = True
     else:
         allokay = True
         endstat.append("no network requested")
@@ -86,7 +89,9 @@ def start(
 
                 r = machine.RTC()
                 if force_date is None:
-                    force_date = config._USE_DATE
+                    force_date = (
+                        (1999, 1, 2) if config._USE_DATE is None else config._USE_DATE
+                    )
                 r.datetime(
                     (
                         force_date[0],
@@ -127,6 +132,17 @@ def start(
                 nrandom=None,
                 bright=brightlevel,
             )
+            nonet = holiday.NoDate(
+                pix,
+                dur=config._HAN_DUR,
+                nrandom=(
+                    (len(pix) // config._RANDOM_RATIO)
+                    if config._RANDOM_RATIO is not None
+                    else None
+                ),
+                bright=brightlevel,
+            )
+
             christmas = holiday.Christmas(
                 pix,
                 dur=config._LONG_DUR,
@@ -194,7 +210,8 @@ def start(
                 brightlevel = checkstart.getBrightness()
                 print(f"Brightness: {brightlevel}")
                 _ = (
-                    dofire.chkDate(dt=dt, run=True, bright=brightlevel)
+                    nonet.chkDate(dt=dt, run=True, bright=brightlevel)
+                    or dofire.chkDate(dt=dt, run=True, bright=brightlevel)
                     or nyeve.chkDate(dt=dt, run=True)
                     or birthday.chkDate(dt=dt, run=True, bright=brightlevel)
                     or hanukkah.chkDate(dt=dt, run=True, bright=brightlevel)
@@ -228,10 +245,12 @@ def start(
 
             endstat.append("Unexpected Exception")
             endstat.append(str(unexpected))
-            sys.print_exception(unexpected)
+            with open("exception.oops", "a") as f:
+                sys.print_exception(unexpected, f)
             pix.fill((0, 0, 0))
             pix.write()
-            mqttquick.sendmsg(endstat[-1], addtopic=config._SUFFIX)
+            if config._USE_NETWORK:
+                mqttquick.sendmsg(endstat[-1], addtopic=config._SUFFIX)
     else:
         print("Not All OKAY")
         endstat.append("Not ALL OKAY")
