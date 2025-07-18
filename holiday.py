@@ -3,7 +3,6 @@ import random
 import gc
 import runleds
 import twinkle
-import cpixels
 
 
 # time.localtime()/gmtime() are UTC
@@ -182,6 +181,23 @@ class SaintPatrick(Holiday):
         else:
             print("twinkle")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
+        gc.collect()
+
+
+class NoDate(Holiday):
+    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
+        self.twinkdata = twinkle.misc_col
+        super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
+
+    def chkDate(self, dt=None, run=False, bright=None):
+        self.isHoliday = (dt is None) or (dt[0] < 2024)
+        if self.isHoliday and run:
+            self.run()
+        return self.isHoliday
+
+    def run(self, *, sf=None, choice=None):
+        print("twinkle NoDate")
+        twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
 
