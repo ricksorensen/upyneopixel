@@ -14,7 +14,7 @@ import gc
 
 brightness = 0.1
 # variables to hold the color that the LED will blink
-neo_r = round(255 * brightness)
+neo_r = round(210 * brightness)
 neo_g = round(200 * brightness)
 neo_b = round(0 * brightness)
 
@@ -36,6 +36,7 @@ hanukkah_col = [[0, 0, 76], [75, 55, 55]]
 christmas_col = [[red_r, red_g, red_b], [green_r, green_g, green_b]]
 valentine_col = [[red_r, red_g, red_b], [white_r, white_g, white_b]]
 stpat_col = [[green_r, green_g, green_b], [white_r, white_g, white_b]]
+misc_col = [[neo_r, neo_g, neo_b], [neo_g, neo_b, neo_r]]
 
 color_opts = christmas_col
 # variable to hold the number of neopixels
