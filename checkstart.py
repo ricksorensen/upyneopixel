@@ -43,7 +43,7 @@ try:
         hrnow = dt[3] + (dt[4] / 60)
         # stime = mqttquick.getstart_time(start)
         # print(f" {dt}.   DS {stime}")
-        light = getlightlevel(report=config._LDR_REPORT)
+        light = getlightlevel(report=config._USE_NETWORK and config._LDR_REPORT)
         if (light > config._LDR_TURNON) and (8 < hrnow < stop):
             hrsleep = 0
         temp = None
@@ -60,7 +60,8 @@ try:
             pix.write()
             print(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
-            mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
+            if config._USE_NETWORK:
+                mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
             time.sleep(0.2)
             if not debug:
                 machine.deepsleep(hrsleep)
@@ -96,7 +97,7 @@ try:
         elif hrnow < stop:  # assumes stop not past midnight
             hrsleep = 0
         temp = None
-        _ = getlightlevel(report=config._LDR_REPORT)
+        _ = getlightlevel(report=config._USE_NETWORK and config._LDR_REPORT)
         if pix is not None:
             pix.fill((0, 0, 0))
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
@@ -111,7 +112,8 @@ try:
         if (dosleep is not None) and (hrsleep > 0):
             print(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
-            mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
+            if config._USE_NETWORK:
+                mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
             time.sleep(0.2)
             if not debug:
                 machine.deepsleep(hrsleep)
