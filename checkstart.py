@@ -1,12 +1,14 @@
+import logging
 import holiday
 import mqttquick
 import time
 import config
 import machine
-import random
 
 try:
     import esp32
+
+    logger = logging.getLogger("RJS")
 
     # wdt=machine.WDT(timeout=10*60*1000)
     # wdt.feed()
@@ -57,6 +59,7 @@ try:
             else:
                 print("no everydayu passed")
         if (dosleep is not None) and (hrsleep > 0):
+            logger.info("Deep Sleep")
             pix.write()
             print(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
@@ -111,6 +114,7 @@ try:
                 pix.write()
         if (dosleep is not None) and (hrsleep > 0):
             print(f"deepsleep active {hrsleep} {temp}")
+            logger.info("Deep Sleep")
             # endstat.append("deepsleep active")
             if config._USE_NETWORK:
                 mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
