@@ -1,3 +1,4 @@
+import logging
 import holiday
 import everyday
 import mqttquick
@@ -18,10 +19,19 @@ if config._USE_NETWORK:
     import netconnect
     import ntptime
 
+logging.basicConfig(
+    filename="rjslog.log",
+    level=logging.DEBUG,
+    format="%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
+)
+
+logger = logging.getLogger("RJS")
+
 
 def start(
     interruptStart=True, delayStart=0, force_date=None, fixtemp=None, debug=False
 ):
+    logger.info("starting lights")
     if interruptStart:
         print("time start up interrupt")
         time.sleep(60)
@@ -40,6 +50,7 @@ def start(
             controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
             if controlmsg & 0x01 == 1:
                 endstat.append("Stopped by mqtt message")
+                logger.info("Stopped by mqtt message")
                 return endstat
             elif controlmsg & 0x02 == 2:
                 # hardsleep = None
@@ -57,6 +68,7 @@ def start(
     endstat.append(f"network allok:{allokay}")
     print("starting lights")
     print("initial memory ", gc.mem_free())
+    logger.info(f"network {not allokay}")
     if allokay:
         try:
             pix = runleds.test_setup(
@@ -201,6 +213,7 @@ def start(
                 < 0
             ):
                 endstat.append("DeepSleep .. Debug")
+                logger.info("Deepsleep as directed before running")
                 return endstat
             hardsleep = config._DEEPSLEEP
 
@@ -225,6 +238,7 @@ def start(
                         bright=brightlevel,
                     )
                 )
+                logger.info(f"effect done: {gc.mem_free()}")
                 print("free mem: ", gc.mem_free())
                 gc.collect()
                 if (
@@ -239,6 +253,7 @@ def start(
                     < 0
                 ):
                     endstat.append("DeepSleep .. Debug")
+                    logger.info("DeepSleep .. Debug unexpected after effect")
                     return endstat
         except Exception as unexpected:
             import sys
@@ -247,6 +262,7 @@ def start(
             endstat.append(str(unexpected))
             with open("exception.oops", "a") as f:
                 sys.print_exception(unexpected, f)
+            logger.info(" unexpected exception " + str(unexpected))
             pix.fill((0, 0, 0))
             pix.write()
             if config._USE_NETWORK:
@@ -254,8 +270,9 @@ def start(
     else:
         print("Not All OKAY")
         endstat.append("Not ALL OKAY")
-
+        logger.info(" not good not starting")
     if config._USEBITBANG:
         esp32.RMT.bitstream_channel(1)
+    logger.info(f"All done: {endstat}")
 
     return endstat
