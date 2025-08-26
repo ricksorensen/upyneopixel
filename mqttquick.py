@@ -47,6 +47,8 @@ def _sub_cb(topic, msg):
         _controlstate = 0x02
         if "hard" in msg:
             _controlstate = 0x06
+    else:  # if b"okay" in msg:
+        _controlstate = 0x00
     # print(topic + " sub_cb " + msg)
 
 
