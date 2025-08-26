@@ -1,6 +1,9 @@
 from time import sleep
 from random import randint
 import gc
+import logging
+
+logger = logging.getLogger(__name__)
 
 pixreal = False
 try:
@@ -27,7 +30,7 @@ def makeRWB(n, b):
 
 
 def _makeflag(pix, size=30, niter=1, b=255, top=False):
-    # print(f"makeflag: s={size} n={niter}")
+    logger.debug(f"makeflag: s={size} n={niter}")
     clr = makeRWB(size // 3, b)
     startp = len(pix) - (size * niter) if top else 0
     for i in range(niter):
@@ -83,7 +86,8 @@ class effect_panel:
             self.flagsize = _makeflag(
                 self._pix, size=size, niter=niter, b=brightness, top=top
             )
-            print(f"flag: sz={size} n={niter} --> {self.flagsize}")
+            if debug:
+                logger.debug(f"flag: sz={size} n={niter} --> {self.flagsize}")
         else:
             _cycle_rng(self._pix, self.flagsize, top=top)
 
@@ -109,8 +113,10 @@ class effect_panel:
         pixend = pixstart + firelen
         # strip = self._strip
         if debug:
-            print("fire: " + self.__str__())
-            print(f"b={brightness} flen={firelen} pstart={pixstart} pend={pixend}")
+            logger.debug("fire: " + self.__str__())
+            logger.debug(
+                f"b={brightness} flen={firelen} pstart={pixstart} pend={pixend}"
+            )
         # First fade everything out slightly
         for led in range(pixstart, pixend):
             # Read the current colour
@@ -124,12 +130,12 @@ class effect_panel:
             # Write the colour back to the strip
             self._pix[led] = (R, G, B)
         if debug:
-            print(f"{leds_per_block} * {blocks}")
+            logger.debug(f"{leds_per_block} * {blocks}")
 
         # Occasionally brighten some blocks up
         if randint(0, 255) <= speed:
             if debug:
-                print(f"fire update: nblk={blocks * 3 // 4}")
+                logger.debug(f"fire update: nblk={blocks * 3 // 4}")
             try:
                 # Only brighten about three-quarters of the blocks each time
                 for block in range(blocks * 3 // 4):
@@ -154,11 +160,11 @@ class effect_panel:
                         for led in range(start_led, end_led):
                             self._pix[led] = (R, G, B)
                     except Exception as e:
-                        print(f"fire update: exception {e}")
-                        print(f"             {start_led}, {end_led}")
+                        logger.exception("firelight update:", exc_info=e)
+                        logger.error(f"             {start_led}, {end_led}")
                         break
             except Exception as e:
-                print(f"in update main exception: {e}")
+                logger.exception("firelight update main exception:", exc_info=e)
 
     def beacon(self, brightness=255, red=255, green=64, blue=10, speed=128, stripe=10):
         # Merge the overall brightness into the RGB values

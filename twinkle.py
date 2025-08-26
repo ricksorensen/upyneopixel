@@ -11,6 +11,9 @@
 import time
 import random
 import gc
+import logging
+
+logger = logging.getLogger(__name__)
 
 brightness = 0.1
 # variables to hold the color that the LED will blink
@@ -104,7 +107,7 @@ def macdermotti(reset_time_input, light_number, pixels, debug=False):
     #  even if it is not updated in the last if statement
     reset_time = reset_time_input
     if debug:
-        print("MacDermotti: {} {}".format(reset_time_input, time_from_zero))
+        logger.debug("MacDermotti: {} {}".format(reset_time_input, time_from_zero))
     # on flash
     p = "off default"
     if 3000 <= time_from_zero <= 3500:
@@ -126,8 +129,8 @@ def macdermotti(reset_time_input, light_number, pixels, debug=False):
     else:
         off(light_number, pixels)
     if debug:
-        print("           : path: ", p)
-        print("           : return {}".format(reset_time))
+        logger.debug(f"           : path: {p}")
+        logger.debug("           : return {}".format(reset_time))
 
     return reset_time
 
@@ -195,7 +198,7 @@ def doTwinkle(pixels, twinkledata, tdur_sec=120):
     global color_opts
     color_opts = twinkledata
     initBugs(pixels)
-
+    logger.info(f"starting twinkle {tdur_sec}")
     tend = time.ticks_add(time.ticks_ms(), tdur_sec * 1000)
     while time.ticks_ms() < tend:
         # iterates through all of the light objects in the bug_holder list
@@ -225,7 +228,7 @@ def doTwinkle(pixels, twinkledata, tdur_sec=120):
         # briefly pauses the loop to avoid crashing the USB bus.
         #   Also makes it easier to see what is happening.
         time.sleep(0.1)
-    print("twinkle done")
+    logger.info("twinkle done")
     pixels.fill((0, 0, 0))
     pixels.write()
     gc.collect()

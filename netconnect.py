@@ -1,4 +1,7 @@
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def chkssid(wlan):
@@ -12,7 +15,7 @@ def chkssid(wlan):
             if h[3] > maxstrength[0]:
                 maxstrength[0] = h[3]
                 maxstrength[1] = h[0]
-    print(f"chkssid: {maxstrength}")
+    logger.debug(f"chkssid: {maxstrength}")
     return maxstrength[1]
 
 
@@ -22,7 +25,7 @@ def connect(ssid="RJSNG_24", key="december23", timeout=30000):
     sta_if = network.WLAN(network.STA_IF)
     tout = False
     if not sta_if.isconnected():
-        print("restarting network connection")
+        logger.info("restarting network connection")
         if ssid is None:
             ssid = chkssid(sta_if)
         sta_if.active(True)
@@ -34,10 +37,10 @@ def connect(ssid="RJSNG_24", key="december23", timeout=30000):
                 break
             time.sleep(1)  # wait till connection
     if tout:
-        print(f"network {ssid} not connected")
+        logger.info(f"network {ssid} not connected")
         sta_if.disconnect()
     else:
-        print(f"network {ssid} config:", sta_if.ifconfig())
+        logger.info(f"network {ssid}: {sta_if.ifconfig()}")
 
 
 def connectIP(ssid="RJSNG_24", key="december23", timeout=30000, myIP="192.168.1.177"):
@@ -49,7 +52,7 @@ def connectIP(ssid="RJSNG_24", key="december23", timeout=30000, myIP="192.168.1.
     #    if myIP is not None:
     #        sta_if.ifconfig((myIP, "255.255.255.0", "192.168.1.18", "8.8.8.8"))
     if not sta_if.isconnected():
-        print("restarting network connection")
+        logger.info("restarting network connection")
         sta_if.active(True)
         if myIP is not None:
             sta_if.ifconfig((myIP, "255.255.255.0", "192.168.1.18", "8.8.8.8"))
@@ -66,20 +69,22 @@ def connectIP(ssid="RJSNG_24", key="december23", timeout=30000, myIP="192.168.1.
             f.write(f"used SSID={ssid}  connected={not tout}")
         print(f"used SSID={ssid}  connected={not tout}")
     elif myIP is not None and sta_if.ifconfig()[0] != myIP:
-        print("resetting IP address from {} to {}".format(sta_if.ifconfig()[0], myIP))
+        logger.info(
+            "resetting IP address from {} to {}".format(sta_if.ifconfig()[0], myIP)
+        )
         sta_if.ifconfig((myIP, "255.255.255.0", "192.168.1.18", "8.8.8.8"))
     if tout:
-        print(f"network {ssid} not connected")
+        logger.info(f"network {ssid} not connected")
         sta_if.disconnect()
     else:
-        print(f"network {ssid} config:", sta_if.ifconfig())
+        logger.info(f"network {ssid} config: {sta_if.ifconfig()}")
     return not tout
 
 
 def dowrepl(ssid="RJSNG_24", key="december23", myIP="192.168.1.174"):
     import webrepl
 
-    print("dowrepl ", myIP)
+    logger.info("dowrepl " + myIP)
     rv = connectIP(ssid=ssid, key=key, myIP=myIP)
     if rv:
         webrepl.start()

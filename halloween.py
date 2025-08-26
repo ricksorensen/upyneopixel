@@ -2,6 +2,10 @@ import holiday
 import randBlinkerFade as doeyes
 import random
 import gc
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 __ONTIME_CDT = 18  # hour CDT to start
 __neyes = 8
@@ -29,9 +33,9 @@ def selecteyes(
 ):
     doeyes.offall(pix)
     while ncycles > 0:
-        print("cycle: ", ncycles)
+        logger.debug(f"cycle: {ncycles}")
         if random.randrange(10) > 3:
-            print("many eyes")
+            logger.debug("many eyes")
             doeyes.movesome(
                 pix,
                 len(pix),
@@ -43,7 +47,7 @@ def selecteyes(
                 fadeamt=fadeamt,
             )
         else:
-            print("flying eyes")
+            logger.debug("flying eyes")
             doeyes.fly(
                 pix,
                 len(pix),
@@ -72,6 +76,7 @@ class Halloween(holiday.Holiday):
         if bright is None:
             bright = self.bright
         neyeu = len(self.pix) // 15
+        logger.warning("starting halloween ~ 5min")
         selecteyes(
             self.pix,
             neyes=neyeu,  # __neyes,

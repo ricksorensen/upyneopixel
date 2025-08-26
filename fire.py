@@ -4,6 +4,9 @@ import gc
 import time
 import random
 import boom
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # duration in milliseconds
@@ -44,7 +47,7 @@ class Fire(holiday.Holiday):
         firetop = random.choice([True, False]) if self.top is None else self.top
         # True is boom, else fire & flag
         effect_op = random.choice([True, False]) if self.fw is None else not self.fw
-        print(f"fire {self.dur} {self.update} {firetop} {effect_op}")
+        # print(f"fire {self.dur} {self.update} {firetop} {effect_op}")
         if effect_op:
             gc.collect()
             panel = effect_panel.effect_panel(
@@ -54,6 +57,7 @@ class Fire(holiday.Holiday):
             tstart = time.ticks_ms()
             ct = 0
             # do fire with flag
+            logger.warning(f"Starting fire effect {self.dur}")
             while time.ticks_diff(time.ticks_ms(), tstart) < self.dur:
                 panel.firelight(
                     brightness=min(int(bright * 255), 255),

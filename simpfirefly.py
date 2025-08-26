@@ -1,7 +1,9 @@
 import gc
 import random
 import time
+import logging
 
+logger = logging.getLogger(__name__)
 colors = [
     (232, 100, 255),  # Purple
     (200, 200, 20),  # Yellow
@@ -28,6 +30,7 @@ def run_flies(pix, num_flashes=10, dur=120, bright=1.0):
     pix.fill((0, 0, 0))
     tstart = time.ticks_ms()
     tdur = dur * 1000
+    logger.warning(f"starting simpfirefly- {tdur}")
     while time.ticks_diff(time.ticks_ms(), tstart) < tdur:
         for i in range(num_flashes):
             ipix = flashing[i][0]

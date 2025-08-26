@@ -3,7 +3,9 @@ import random
 import colorsupport
 import time
 import gc
+import logging
 
+logger = logging.getLogger(__name__)
 NUM_SPARK = 8
 
 sparkpos = NUM_SPARK * [0]  # led position
@@ -89,9 +91,10 @@ def explodeloop(pix, flarepos=0):
 
 def doall(pix, durms=50000, brightness=0.5, dly=5, vel=None):
     tstart = time.ticks_ms()
+    logger.warning(f"Starting boom effect {durms}")
     while time.ticks_diff(time.ticks_ms(), tstart) < durms:
         fp = flare(pix, vel=vel, b=brightness)
-        print(f"#Flare Done position {fp}")
+        # print(f"#Flare Done position {fp}")
         time.sleep(0.5)
         explodeloop(pix, flarepos=fp)
         pix.fill((0, 0, 0))

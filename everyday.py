@@ -11,6 +11,11 @@ import simpfirefly
 # import boom
 import fwpartx
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 try:
     haveTemp = True
     import esp32
@@ -83,13 +88,13 @@ class Everyday(Holiday):
             tsens = ds18x20.DS18X20(onewire.OneWire(machine.Pin(temppin)))
             rs = tsens.scan()
             if len(rs) == 0:
-                print("no tempsensor found")
+                logger.warning("no tempsensor found")
                 self.tempsens = None
             else:
                 self.tempsens = (tsens, rs[0])
-        except Exception:
+        except Exception as excp:
             self.tempsens = None
-            print("exception while checking temp sensor")
+            logger.exception("exception while checking temp sensor", exc_info=excp)
         # if nrandom is None:
         #    nrandom = len(pix) // 3
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
@@ -122,9 +127,9 @@ class Everyday(Holiday):
             t = None
             nrand = len(self.pix) // 3
 
-        print("everyday t={},  nff={}".format(tout, self.ffnum))
+        logger.debug("everyday t={},  nff={}".format(tout, self.ffnum))
         if self.temp and ((config._EVERYDAY_OPT == "TEMP") or ((tod[4] % 30) < 5)):
-            print(" everyday temp")
+            logger.warning(f"starting everyday runtemp {self.dur}")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
@@ -137,12 +142,12 @@ class Everyday(Holiday):
         else:
             opt = random.randrange(0, 10)
             if opt < 3 and self.ffnum > 0:
-                print(" everyday firefly")
+                logger.warning(f"starting everyday firefly  {self.dur}")
                 simpfirefly.run_flies(
                     self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
                 )
             elif 3 <= opt < 8 and self.dorand:
-                print(" everyday random")
+                logger.warning(f"starting everyday random {self.dur}")
                 runleds.loop_led_time(
                     self.pix,
                     None,
@@ -152,7 +157,7 @@ class Everyday(Holiday):
                     bright=bright,
                 )
             elif opt >= 8 and self.fworks:
-                print(" everyday fireworks")
+                logger.warning(f"starting everyday fireworks {self.dur}")
                 # should be fireworks
                 # boom.doall(self.pix, durms=self.dur * 1000, brightness=bright, dly=2)
                 norm = None
@@ -182,14 +187,14 @@ class Everyday(Holiday):
                     swaprgb=config._SWAPRGB,
                     greenmute=0.3,
                 )
-        except Exception:
-            print("exception while checking temp sensor")
+        except Exception as excp:
+            logger.exception("exception while checking temp sensor", exc_info=excp)
         return c, tout
 
 
 class Aprilfool(Everyday):
     def run(self):
-        print("April Fools")
+        logger.warning("April Fools")
         super().run()
 
     def chkDate(self, dt=None, run=False, bright=None):

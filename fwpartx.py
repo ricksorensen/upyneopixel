@@ -1,7 +1,10 @@
 # import colorsupport
 import gc
 import random
+import logging
 
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
 try:
     from micropython import const
     from time import ticks_ms, ticks_diff, sleep
@@ -187,10 +190,12 @@ def testit(
     norm=None,
 ):
     if norm is None:
+        scalef = 1.15 + random.random() / 4
         flare_max = -(v0 * v0) / a / 2
-        norm = (flare_max * 1.15) / len(pix)
+        norm = (flare_max * scalef) / len(pix)
+        logger.info(f"flare_max={flare_max}   normu={norm}")
         print(f"flare_max={flare_max}   normu={norm}")
-    print(f"fw.testit {norm} {v0}")
+    logger.info(f"fw.testit {norm} {v0}")
     flarepos = flare(
         pix,
         vlim=vlim,
@@ -217,6 +222,7 @@ def testit(
 
 def doall(pix, durms=15000, dly=2, vel=73, norm=None, debugprint=False):
     tstart = ticks_ms()
+    logger.info(f"starting fwpartx {durms}")
     while ticks_diff(ticks_ms(), tstart) < durms:
         testit(pix, v0=vel, useiter=False, norm=norm, vlim=-1.0, debugprint=debugprint)
         sleep(dly)
