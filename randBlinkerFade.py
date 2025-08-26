@@ -248,8 +248,8 @@ def movesome(
                 autoblink=blink,
             )
         )
-    print("Num Eyes: ", len(eyes))
-    print(eyes)
+    # print("Num Eyes: ", len(eyes))
+    # print(eyes)
     now = time.ticks_ms()
     for eye in eyes:
         eye.start(now)
