@@ -7,11 +7,23 @@ import machine
 
 try:
     import esp32
+    import network
 
-    logger = logging.getLogger("RJS")
+    logger = logging.getLogger(__name__)
 
     # wdt=machine.WDT(timeout=10*60*1000)
     # wdt.feed()
+
+    def cpusleep(msec):
+        wlan = network.WLAN(network.STA_IF)
+        wlan.disconnect()
+        wlan.active(False)
+        # flush and close logging files
+        # logging.shutdown()  will try and close log file for each logger, maybe dups
+        # just close root file logger (first one)
+        logging.getLogger().handlers[0].close()
+        time.sleep(0.2)
+        machine.deepsleep(msec)
 
     def getlightlevel(report=False):
         chklight = machine.ADC(
@@ -53,24 +65,25 @@ try:
             pix.fill((0, 0, 0))
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
                 c, temp = everydayu.getTempColor(b=getBrightness())
-                print("Setting day temp  ", c)
+                # print("Setting day temp  ", c)
                 for i in range(len(pix) - 60, len(pix)):
                     pix[i] = c
             else:
-                print("no everydayu passed")
+                # print("no everydayu passed")
+                pass
         if (dosleep is not None) and (hrsleep > 0):
-            logger.info("Deep Sleep")
+            logger.info(f"Deep Sleep {hrsleep} {temp}")
             pix.write()
-            print(f"deepsleep active {hrsleep} {temp}")
+            # print(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
             if config._USE_NETWORK:
                 mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
             time.sleep(0.2)
             if not debug:
-                machine.deepsleep(hrsleep)
+                cpusleep(hrsleep)
             hrsleep = -1
         else:
-            print(f"deepsleep request {dosleep} {hrsleep} {temp}")
+            logger.debug(f"deepsleep request {dosleep} {hrsleep} {temp}")
         # wdt.feed()
         return hrsleep
 
@@ -94,7 +107,7 @@ try:
         hrsleep = int(dsleept * 3600 * 1000)
         hrnow = dt[3] + (dt[4] / 60)
         stime = getstart_time(start)
-        print(f" {dt}.   DS {stime}")
+        # print(f" {dt}.   DS {stime}")
         if hrnow < stime:
             hrsleep = int(min(dsleept, stime - hrnow) * 3600 * 1000)
         elif hrnow < stop:  # assumes stop not past midnight
@@ -105,25 +118,25 @@ try:
             pix.fill((0, 0, 0))
             if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
                 c, temp = everydayu.getTempColor(b=0.1)
-                print("Setting day temp  ", c)
+                # print("Setting day temp  ", c)
                 for i in range(len(pix) - 60, len(pix)):
                     pix[i] = c
             else:
-                print("no everydayu passed")
+                # print("no everydayu passed")
+                pass
             if hrsleep > 0:
                 pix.write()
         if (dosleep is not None) and (hrsleep > 0):
-            print(f"deepsleep active {hrsleep} {temp}")
-            logger.info("Deep Sleep")
+            logger.info(f"deepsleep active {hrsleep} {temp}")
             # endstat.append("deepsleep active")
             if config._USE_NETWORK:
                 mqttquick.msgalert(hrsleep, hrnow, temp=temp, addtopic=config._SUFFIX)
             time.sleep(0.2)
             if not debug:
-                machine.deepsleep(hrsleep)
+                cpusleep(hrsleep)
             hrsleep = -1
         else:
-            print(f"deepsleep request {dosleep} {hrsleep} {temp}")
+            logger.debug(f"deepsleep request {dosleep} {hrsleep} {temp}")
         # wdt.feed()
         return hrsleep
 
@@ -139,6 +152,10 @@ except ImportError:
     def check_sleep_time(pix, dosleep=False, start=None, stop=23, everydayu=None):
         return 0
 
+    def cpusleep(msec):
+        pass
+
 
 def setCheckStart(lightSensor=False):
+    logger.info(f" Using darkness instead of time for start? {lightSensor}")
     return check_sleep_light if lightSensor else check_sleep_time
