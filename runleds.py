@@ -22,7 +22,7 @@ def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
     for s in range(nstep):
         npv = int(b * sf * math.exp(s / expscale))
         cu.append([clevel if i == ci else npv for i in range(3)])
-    print(cu)
+    # print(cu)
     return cu
 
 
@@ -74,7 +74,7 @@ def loop_led_time(
         tend = time.ticks_add(time.ticks_ms(), tend * 1000)
     i = 0
     llen = len(leds)
-    print("loop_led_time: npix = ", llen)
+    # print("loop_led_time: npix = ", llen)
     while tend is None or time.ticks_ms() < tend:
         if src is not None:
             # if isinstance(src, bytearray):
@@ -101,7 +101,7 @@ def test_setup(npix=300, pin=2, swaprgb=False):
         pix.ORDER = (0, 1, 2, 3)  # neopixel.NeoPixel.ORDER default is  (1, 0, 2, 3)
     pix.fill((0, 0, 0))
     pix.write()
-    print("Test_setup: ", npix)
+    # print("Test_setup: ", npix)
     return pix
 
 
@@ -111,7 +111,7 @@ def test_dataa(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
     norm = 2 if reverse else 1
     step = min(pixlen // norm - 5, 50 // norm)
     fwd = dofade_exp(ci=ci, nstep=step, b=b, expscale=expscale)
-    print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
+    # print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
     if reverse:
         fwd = fwd + fwd[::-1]
     return fwd
