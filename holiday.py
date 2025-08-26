@@ -3,6 +3,9 @@ import random
 import gc
 import runleds
 import twinkle
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # time.localtime()/gmtime() are UTC
@@ -55,21 +58,23 @@ class Hanukkah(Holiday):
             self.run(bright=bright)
         return self.isHoliday
 
-    def run(self, *, choice=None):
+    def run(self, *, choice=None, bright=None):
+        if bright is None:
+            bright = self.bright
         if choice is None:
             choice = random.choice([True, False])
         if choice:
-            print("hanukkah full")
+            logger.warning(f"start hanukkah full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=self.nrandom,
-                bright=self.bright,
+                bright=bright,
             )
         else:
-            print("hanukkah twinkle")
+            logger.warning(f"start hanukkah twinkle {self.dur}")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
@@ -99,21 +104,23 @@ class Christmas(Holiday):
             self.run(bright=bright)
         return self.isHoliday
 
-    def run(self, *, sf=None, choice=None):
+    def run(self, *, sf=None, bright=None, choice=None):
+        if bright is None:
+            bright = self.bright
         if choice is None:
             choice = random.choice([True, False])
         if choice:
-            print("dochristmas")
+            logger.warning(f"start christmas full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=self.nrandom,
-                bright=self.bright,
+                bright=bright,
             )
         else:
-            print("twinkle")
+            logger.warning(f"start christmas twinkle {self.dur}")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
@@ -132,21 +139,23 @@ class Valentine(Holiday):
             self.run(bright=bright)
         return self.isHoliday
 
-    def run(self, *, sf=None, choice=None):
+    def run(self, *, sf=None, bright=None, choice=None):
+        if bright is None:
+            bright = self.bright
         if choice is None:
             choice = random.choice([True, False])
         if choice:
-            print("valentine")
+            logger.warning(f"start valentine full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=self.nrandom,
-                bright=self.bright,
+                bright=bright,
             )
         else:
-            print("twinkle")
+            logger.warning(f"start valentine twinkle {self.dur}")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
@@ -165,21 +174,23 @@ class SaintPatrick(Holiday):
             self.run(bright=bright)
         return self.isHoliday
 
-    def run(self, *, sf=None, choice=None):
+    def run(self, *, sf=None, bright=None, choice=None):
+        if bright is None:
+            bright = self.bright
         if choice is None:
             choice = random.choice([True, False])
         if choice:
-            print("st pattys")
+            logger.warning(f"start st pattys full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
                 tdur_secs=self.dur,
                 sclr=True,
                 nrandom=self.nrandom,
-                bright=self.bright,
+                bright=bright,
             )
         else:
-            print("twinkle")
+            logger.warning(f"start st pattys twinkle {self.dur}")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
@@ -196,7 +207,7 @@ class NoDate(Holiday):
         return self.isHoliday
 
     def run(self, *, sf=None, choice=None):
-        print("twinkle NoDate")
+        logger.warning(f"start twinkle NoDate {self.dur}")
         twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()
 
@@ -232,6 +243,8 @@ class Birthday(Holiday):
         return rv
 
     def chkDate(self, dt=None, run=False, bright=None):
+        if bright is None:
+            bright = self.bright
         if dt is None:
             dt = rjslocaltime()
         self.isHoliday = (dt[1:3] == (12, 31)) or Birthday.chkBday(dt)
@@ -240,7 +253,7 @@ class Birthday(Holiday):
         return self.isHoliday
 
     def run(self, *, sf=None, choice=None, bright=None):
-        print("birthday")
+        logger.warning(f"start birthday {self.dur}")
         if bright is None:
             bright = self.bright
         runleds.loop_led_time(
