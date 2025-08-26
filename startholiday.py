@@ -1,4 +1,20 @@
 import logging
+
+logging.basicConfig(
+    filename="rjslogx.log",
+    level=logging.ERROR,
+    format="%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
+)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+ch.setFormatter(
+    logging.Formatter(
+        "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s"
+    )
+)
+logging.getLogger().addHandler(ch)
+
 import holiday
 import everyday
 import mqttquick
@@ -19,18 +35,19 @@ if config._USE_NETWORK:
     import netconnect
     import ntptime
 
-logging.basicConfig(
-    filename="rjslog.log",
-    level=logging.DEBUG,
-    format="%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
-)
-
-logger = logging.getLogger("RJS")
+logger = logging.getLogger(__name__)
 
 
 def start(
-    interruptStart=True, delayStart=0, force_date=None, fixtemp=None, debug=False
+    interruptStart=True,
+    delayStart=0,
+    force_date=None,
+    fixtemp=None,
+    debug=False,
+    loglevel=None,
 ):
+    if loglevel is not None:
+        logging.changeLevel(loglevel)
     logger.info("starting lights")
     if interruptStart:
         print("time start up interrupt")
@@ -41,24 +58,25 @@ def start(
     check_sleep = checkstart.setCheckStart(lightSensor=config._DAYNIGHT_ON)
 
     if config._USE_NETWORK:
-        print("starting webrepl ", config._IP_ADDR)
+        logger.debug("starting webrepl " + config._IP_ADDR)
         allokay = netconnect.dowrepl(ssid=None, myIP=config._IP_ADDR)
         # allokay = netconnect.doviperide(myIP=config._IP_ADDR)
-        print("net status: ", allokay)
+        logger.warning(f"net status: {allokay}")
         config._USE_NETWORK = allokay
         if allokay:
             controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
             if controlmsg & 0x01 == 1:
                 endstat.append("Stopped by mqtt message")
-                logger.info("Stopped by mqtt message")
+                logger.warning("Stopped by mqtt message")
+                logging.shutdown()
                 return endstat
             elif controlmsg & 0x02 == 2:
                 # hardsleep = None
                 starttime = 0
                 check_sleep = checkstart.setCheckStart(lightSensor=False)
-                print("Forcing pattern start from mqtt message")
+                logger.debug("Forcing pattern start from mqtt message")
             while allokay and (delayStart > 0) and (os.dupterm(None) is None):
-                print("wait for WebREPL connection")
+                # print("wait for WebREPL connection")
                 time.sleep(30)
                 delayStart = delayStart - 1
         allokay = True
@@ -66,9 +84,7 @@ def start(
         allokay = True
         endstat.append("no network requested")
     endstat.append(f"network allok:{allokay}")
-    print("starting lights")
-    print("initial memory ", gc.mem_free())
-    logger.info(f"network {not allokay}")
+    logger.info(f"starting light: mem {gc.mem_free()} network {not allokay}")
     if allokay:
         try:
             pix = runleds.test_setup(
@@ -86,13 +102,14 @@ def start(
                             retry = 0
                             endstat.append("set ntp date")
                         except Exception as ntpexcept:
-                            print("ntp timeout")
                             endstat.append(f"ntp timeout {retry}")
                             endstat.append(ntpexcept)
+                            logger.exception(endstat[2], exc_info=ntpexcept)
                             if retry == 0:
                                 pix.fill((0, 0, 0))
                                 pix.write()
-                                raise ntpexcept
+                                # fall through and use prior RTC setting
+                                # raise ntpexcept
                 dt = holiday.rjslocaltime(tzoff=-6)
                 endstat.append(f"set date {dt}")
 
@@ -119,77 +136,77 @@ def start(
                 dt = time.localtime()
                 endstat.append("RTC time used")
             endstat.append(f"date: {dt}")
-            print(dt)
+            logger.info(endstat[-1])
             stoptime = config._DSLEEP_STOP if hasattr(config, "_DSLEEP_STOP") else 23
             brightlevel = checkstart.getBrightness()
-            hanukkah = holiday.Hanukkah(
-                pix,
-                dur=config._HAN_DUR,
-                nrandom=(
-                    (len(pix) // config._RANDOM_RATIO)
-                    if config._RANDOM_RATIO is not None
-                    else None
+            effects = [
+                holiday.NoDate(
+                    pix,
+                    dur=config._HAN_DUR,
+                    nrandom=(
+                        (len(pix) // config._RANDOM_RATIO)
+                        if config._RANDOM_RATIO is not None
+                        else None
+                    ),
+                    bright=brightlevel,
                 ),
-                bright=brightlevel,
-            )
-            valentine = holiday.Valentine(
-                pix,
-                dur=config._HAN_DUR,
-                nrandom=None,
-                bright=brightlevel,
-            )
-            stpats = holiday.SaintPatrick(
-                pix,
-                dur=config._HAN_DUR,
-                nrandom=None,
-                bright=brightlevel,
-            )
-            nonet = holiday.NoDate(
-                pix,
-                dur=config._HAN_DUR,
-                nrandom=(
-                    (len(pix) // config._RANDOM_RATIO)
-                    if config._RANDOM_RATIO is not None
-                    else None
+                holiday.Birthday(pix, dur=config._LONG_DUR, bright=brightlevel),
+                holiday.Valentine(
+                    pix,
+                    dur=config._HAN_DUR,
+                    nrandom=None,
+                    bright=brightlevel,
                 ),
-                bright=brightlevel,
-            )
-
-            christmas = holiday.Christmas(
-                pix,
-                dur=config._LONG_DUR,
-                nrandom=(
-                    (len(pix) // config._RANDOM_RATIO)
-                    if config._RANDOM_RATIO is not None
-                    else None
+                holiday.SaintPatrick(
+                    pix,
+                    dur=config._HAN_DUR,
+                    nrandom=None,
+                    bright=brightlevel,
                 ),
-                bright=brightlevel,
-            )
-            birthday = holiday.Birthday(pix, dur=config._LONG_DUR, bright=brightlevel)
-            nyeve = holiday.Birthday(pix, dur=config._LONG_DUR, bright=0.5)
-            halloeve = halloween.Halloween(
-                pix,
-                bright=brightlevel,
-            )
-            dofire = fire.Fire(
-                pix,
-                dur=config._LONG_DUR * 1000,  # ms
-                update=25,
-                top=config._FIRETOP,
-                fw=None,
-                debug=debug,
-            )
-            aprilfool = everyday.Aprilfool(
-                pix,
-                dur=config._LONG_DUR,
-                fixtemp=35,
-                nrandom=(
-                    (len(pix) // config._RANDOM_RATIO)
-                    if config._RANDOM_RATIO is not None
-                    else None
+                holiday.Hanukkah(
+                    pix,
+                    dur=config._HAN_DUR,
+                    nrandom=(
+                        (len(pix) // config._RANDOM_RATIO)
+                        if config._RANDOM_RATIO is not None
+                        else None
+                    ),
+                    bright=brightlevel,
                 ),
-                bright=brightlevel,
-            )
+                holiday.Christmas(
+                    pix,
+                    dur=config._LONG_DUR,
+                    nrandom=(
+                        (len(pix) // config._RANDOM_RATIO)
+                        if config._RANDOM_RATIO is not None
+                        else None
+                    ),
+                    bright=brightlevel,
+                ),
+                halloween.Halloween(
+                    pix,
+                    bright=brightlevel,
+                ),
+                fire.Fire(
+                    pix,
+                    dur=config._LONG_DUR * 1000,  # ms
+                    update=25,
+                    top=config._FIRETOP,
+                    fw=None,
+                    debug=debug,
+                ),
+                everyday.Aprilfool(
+                    pix,
+                    dur=config._LONG_DUR,
+                    fixtemp=35,
+                    nrandom=(
+                        (len(pix) // config._RANDOM_RATIO)
+                        if config._RANDOM_RATIO is not None
+                        else None
+                    ),
+                    bright=brightlevel,
+                ),
+            ]
             fallback = everyday.Everyday(
                 pix,
                 dur=config._LONG_DUR,
@@ -213,33 +230,25 @@ def start(
                 < 0
             ):
                 endstat.append("DeepSleep .. Debug")
-                logger.info("Deepsleep as directed before running")
+                logger.warning("Deepsleep as directed before running")
+                logging.shutdown()
                 return endstat
             hardsleep = config._DEEPSLEEP
 
-            print(" Allocate memory :", gc.mem_free())
+            logger.warning(f"Start memory  {gc.mem_free()}")
             endstat.append("holidays created")
             while True:
                 brightlevel = checkstart.getBrightness()
-                print(f"Brightness: {brightlevel}")
-                _ = (
-                    nonet.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or dofire.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or nyeve.chkDate(dt=dt, run=True)
-                    or birthday.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or hanukkah.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or valentine.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or christmas.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or stpats.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or halloeve.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or aprilfool.chkDate(dt=dt, run=True, bright=brightlevel)
-                    or fallback.run(
+                logger.debug(f"Brightness: {brightlevel}")
+                if not any(
+                    eft.chkDate(dt, run=True, bright=brightlevel) for eft in effects
+                ):
+                    fallback.run(
                         correct=config._TEMP_CORRECT,
                         bright=brightlevel,
                     )
-                )
                 logger.info(f"effect done: {gc.mem_free()}")
-                print("free mem: ", gc.mem_free())
+                # print("free mem: ", gc.mem_free())
                 gc.collect()
                 if (
                     check_sleep(
@@ -253,7 +262,8 @@ def start(
                     < 0
                 ):
                     endstat.append("DeepSleep .. Debug")
-                    logger.info("DeepSleep .. Debug unexpected after effect")
+                    logger.error("DeepSleep .. Debug unexpected after effect")
+                    logging.shutdown()
                     return endstat
         except Exception as unexpected:
             import sys
@@ -262,17 +272,28 @@ def start(
             endstat.append(str(unexpected))
             with open("exception.oops", "a") as f:
                 sys.print_exception(unexpected, f)
-            logger.info(" unexpected exception " + str(unexpected))
+            logger.exception(" unexpected exception ", exc_info=unexpected)
+            pix.fill((0, 0, 0))
+            pix.write()
+            if config._USE_NETWORK:
+                mqttquick.sendmsg(endstat[-1], addtopic=config._SUFFIX)
+            time.sleep(0.2)
+            checkstart.cpusleep(1800000)  # 1 minute try again
+        except KeyboardInterrupt:
+            print("Keyboard Interrupt handled")
+            endstat.append("KeyboardInterrupt")
+            logger.exception(" Keyboard Interrupt")
             pix.fill((0, 0, 0))
             pix.write()
             if config._USE_NETWORK:
                 mqttquick.sendmsg(endstat[-1], addtopic=config._SUFFIX)
     else:
-        print("Not All OKAY")
+        # print("Not All OKAY")
         endstat.append("Not ALL OKAY")
-        logger.info(" not good not starting")
+        logger.error(" not good not starting")
     if config._USEBITBANG:
         esp32.RMT.bitstream_channel(1)
-    logger.info(f"All done: {endstat}")
+    logger.warning(f"All done: {endstat}")
 
+    logging.shutdown()
     return endstat
