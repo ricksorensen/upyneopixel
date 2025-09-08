@@ -193,8 +193,8 @@ def testit(
         scalef = 1.15 + random.random() / 4
         flare_max = -(v0 * v0) / a / 2
         norm = (flare_max * scalef) / len(pix)
-        logger.info(f"flare_max={flare_max}   normu={norm}")
-        print(f"flare_max={flare_max}   normu={norm}")
+        logger.debug(f"flare_max={flare_max}   normu={norm}")
+        # print(f"flare_max={flare_max}   normu={norm}")
     logger.info(f"fw.testit {norm} {v0}")
     flarepos = flare(
         pix,
