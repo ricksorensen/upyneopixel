@@ -234,10 +234,12 @@ def start(
                 logging.shutdown()
                 return endstat
             hardsleep = config._DEEPSLEEP
-
+            gc.collect()
             logger.warning(f"Start memory  {gc.mem_free()}")
+            print(f"Start memory  {gc.mem_free()}")
             endstat.append("holidays created")
             while True:
+                gc.collect()
                 brightlevel = checkstart.getBrightness()
                 logger.debug(f"Brightness: {brightlevel}")
                 if not any(
@@ -247,9 +249,9 @@ def start(
                         correct=config._TEMP_CORRECT,
                         bright=brightlevel,
                     )
-                logger.info(f"effect done: {gc.mem_free()}")
-                # print("free mem: ", gc.mem_free())
                 gc.collect()
+                logger.info(f"effect done: {gc.mem_free()}")
+                print("effect done: ", gc.mem_free())
                 if (
                     check_sleep(
                         pix,
