@@ -23,10 +23,11 @@ def selecteyes(
     moverate,
     ncycles=3,
     blink=True,
-    ctlim=20000,
+    dur=300,
+    gap=1,
     faderate=1,
     fadeamt=3,
-    flyctlim=5000,
+    flydur=120,
     flyrate=0.5,
     flybounce=True,
     flyblink=False,
@@ -42,7 +43,8 @@ def selecteyes(
                 neyes=neyes,
                 moverate=moverate,
                 blink=True,
-                ctlim=ctlim,
+                gap=gap,
+                tdur_secs=dur,
                 faderate=faderate,
                 fadeamt=fadeamt,
             )
@@ -51,9 +53,10 @@ def selecteyes(
             doeyes.fly(
                 pix,
                 len(pix),
+                gap=gap,
                 moverate=flyrate,
                 reverse=flybounce,
-                ctlim=flyctlim,
+                tdur_secs=flydur,
                 blink=flyblink,
                 deltaeye=6,
             )
@@ -61,13 +64,14 @@ def selecteyes(
 
 
 class Halloween(holiday.Holiday):
-    def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
+    def __init__(self, pix, *, dur=100, gap=1, nrandom=None, bright=0.1):
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
+        self.gap = gap
 
     def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
             dt = holiday.rjslocaltime()
-        self.isHoliday = (dt[1] == 10) and (dt[2] >= 25)
+        self.isHoliday = (dt[1] == 10) and (dt[2] >= 15)
         if self.isHoliday and run:
             self.run()
         return self.isHoliday
@@ -81,12 +85,13 @@ class Halloween(holiday.Holiday):
             self.pix,
             neyes=neyeu,  # __neyes,
             moverate=__mrate,
-            ncycles=15,
+            ncycles=5,
             blink=True,
-            ctlim=1500,  # 1500 steps at 0.2s/step is 300s/5m
+            dur=self.dur,  # 1500 steps at 0.2s/step is 300s/5m
+            gap=self.gap,
             faderate=1,
             fadeamt=3,
-            flyctlim=2400,  # 2400 steps at .1/2 step is 120s/3m
+            flydur=self.dur,  # 2400 steps at .1/2 step is 120s/3m
             flyrate=0.1,
             flybounce=True,
             flyblink=False,

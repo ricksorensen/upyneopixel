@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 def start(
     interruptStart=True,
     delayStart=0,
+    *,
     force_date=None,
     fixtemp=None,
     debug=False,
@@ -186,6 +187,8 @@ def start(
                 halloween.Halloween(
                     pix,
                     bright=brightlevel,
+                    dur=config._LONG_DUR,
+                    gap=config.__dict__.get("_EYEGAP", 1),
                 ),
                 fire.Fire(
                     pix,

@@ -11,11 +11,12 @@ import random
 
 
 class Blinker:
-    def __init__(self, pos, led, color=[127, 40, 0], autoblink=False):
+    def __init__(self, pos, led, *, gap=1, color=[127, 40, 0], autoblink=False):
         self.active = False
         # self.deadtime=deadtime
         self.pos = pos % len(led)
         self.num_leds = len(led)
+        self.gap = gap
         self.color = color
         # self.speed=speed
         # self.intensity=intensity
@@ -34,33 +35,15 @@ class Blinker:
         )
         return rv
 
-    def setposx(self, pos):
-        cu = self.led[self.pos]
-        pos = pos % self.num_leds
-        e2pos = (pos + 1) % self.num_leds
-        self.led[self.pos] = (0, 0, 0)
-        self.led[(self.pos + 1) % self.num_leds] = (0, 0, 0)
-        self.pos = pos
-        if self.active:
-            self.led[pos] = cu
-            self.led[e2pos] = cu
-        else:
-            self.led[pos] = (0, 0, 0)
-            self.led[e2pos] = (0, 0, 0)
-        self.led.write()
-
     def setpos(self, pos):
         cu = self.led[self.pos]
-        pos = pos % self.num_leds
         self.led[self.pos] = (0, 0, 0)
-        self.led[self.pos + 1] = (0, 0, 0)
-        self.pos = pos
+        self.led[(self.pos + self.gap) % self.num_leds] = (0, 0, 0)
+        self.pos = pos % self.num_leds
         if self.active:
-            self.led[pos] = cu
-            self.led[pos + 1] = cu
-        else:
-            self.led[pos] = (0, 0, 0)
-            self.led[pos + 1] = (0, 0, 0)
+            e2pos = (self.pos + self.gap) % self.num_leds
+            self.led[self.pos] = cu
+            self.led[e2pos] = cu
         self.led.write()
 
     def setcolor(self, color):
@@ -80,7 +63,7 @@ class Blinker:
         self.opentime = now
         self.check(now)
 
-    def check(self, now, fade=None):
+    def check(self, now, *, fade=None):
         if self.autoblink:
             # td = time.ticks_diff(now, self.lastupdt)
             if self.active and now >= self.closetime:
@@ -98,7 +81,7 @@ class Blinker:
                         )
                         # print("fading done", self.pos)
                 self.led[self.pos] = cu
-                self.led[self.pos + 1] = cu
+                self.led[(self.pos + self.gap) % self.num_leds] = cu
                 self.led.write()
             elif (
                 (not self.active)
@@ -106,14 +89,14 @@ class Blinker:
                 and (now >= self.opentime)
             ):
                 self.led[self.pos] = self.color
-                self.led[self.pos + 1] = self.color
+                self.led[(self.pos + self.gap) % self.num_leds] = self.color
                 self.closetime = time.ticks_add(now, random.randint(*self.closetrange))
                 self.active = True
                 self.led.write()
         else:
             if not self.active:
                 self.led[self.pos] = self.color
-                self.led[self.pos + 1] = self.color
+                self.led[(self.pos + self.gap) % self.num_leds] = self.color
                 self.active = True
                 self.led.write()
 
@@ -129,107 +112,64 @@ optr = [2000, 3000]
 crun = [64, 20, 0]
 
 
-# c = [127,40,0] for RGB
-# c = [40,127,0] for GRB
-def runall(pix, npix, faderate=None, fadeamt=1, ctlim=2000):
-    num_leds = len(pix)
-    offall(pix)
-    npix = min(npix, num_leds)
-    ct = 0
-    eyes = [Blinker(i, pix, color=crun, autoblink=True) for i in range(0, npix, 2)]
-    now = time.ticks_ms()
-    for b in eyes:
-        b.opentrange = optr
-        b.closetrange = cltr
-        if random.choice([True, False]):
-            b.start(now)
-        else:
-            b.opentime = time.ticks_add(now, random.randint(*b.opentrange))
-
-    while ct < ctlim:
-        fade = None
-        if faderate is not None and (ct % faderate == 0):
-            fade = fadeamt
-        for b in eyes:
-            b.check(time.ticks_ms(), fade=fade)
-        time.sleep(0.2)
-        ct = ct + 1
-    return eyes
-
-
 cfwd = [63, 20, 0]  # [20, 63, 0]
 cbkw = [30, 6, 0]  # [6, 30, 0]  # [15, 0, 10] [12, 10, 0] [10,35,0],[12,10,0]
 
 
-def movetwo(pix, npix=20, moverate=10):
+def fly(
+    pix,
+    npix,
+    *,
+    gap=1,
+    moverate=10,
+    reverse=False,
+    tdur_secs=30,
+    blink=False,
+    deltaeye=2,
+):
     num_leds = len(pix)
     offall(pix)
     npix = min(npix, num_leds)
-    ct = 0
-    eyes = [
-        Blinker(0, pix, autoblink=False),
-        Blinker(npix - 2, pix, autoblink=False),
-    ]
-
-    now = time.ticks_ms()
-    eyes[0].start(now)
-    eyes[1].start(now)
-    movet = time.ticks_add(now, moverate * 1000)
-    while ct < 600:
-        now = time.ticks_ms()
-        if time.ticks_diff(now, movet) >= 0:
-            eyes[0].setpos((eyes[0].pos + 2) % npix)
-            eyes[1].setpos((eyes[1].pos - 2) % npix)
-            movet = time.ticks_add(now, moverate * 1000)
-        #        for b in eyes:
-        #            b.check(n)
-        time.sleep(0.1)
-        ct = ct + 1
-    return eyes
-
-
-def fly(pix, npix, moverate=10, reverse=False, ctlim=2000, blink=False, deltaeye=2):
-    num_leds = len(pix)
-    offall(pix)
-    npix = min(npix, num_leds)
-    ct = 0
-    eye = Blinker(0, pix, color=cfwd, autoblink=blink)
+    tend = None if not tdur_secs else time.ticks_add(time.ticks_ms(), tdur_secs * 1000)
+    eye = Blinker(0, pix, gap=gap, color=cfwd, autoblink=blink)
     now = time.ticks_ms()
     eye.start(now)
     delta = deltaeye
     moveratems = int(moverate * 1000)
     movet = time.ticks_add(now, moveratems)
     sleeptime = moverate / 2.0
-    while (ctlim is None) or (ct < ctlim):
-        now = time.ticks_ms()
+    while (tend is None) or ((now := time.ticks_ms()) < tend):
         if time.ticks_diff(now, movet) >= 0:
-            newpos = (eye.pos + delta) % npix
+            newpos = eye.pos + delta
             if reverse:
-                if delta > 0 and (newpos == 0 or (newpos == npix - 1)):
-                    newpos = npix - 4
+                if delta > 0 and (newpos == 0 or (newpos >= npix - gap)):
+                    newpos = npix - 1 - gap
                     delta = -deltaeye
-                elif delta < 0 and newpos >= npix - 2:
+                elif delta < 0 and newpos <= gap:
                     newpos = 2
                     delta = deltaeye
+                else:
+                    newpos = newpos % npix
             else:
-                if newpos > npix - 2:
+                if newpos > npix - (gap + 1):
                     newpos = 0
 
             eye.setpos(newpos)
             eye.check(now)
             movet = time.ticks_add(now, moveratems)
         time.sleep(sleeptime)
-        ct = ct + 1
     return eye
 
 
 def movesome(
     pix,
     npix,
+    *,
+    gap=1,
     neyes=2,
     moverate=10,
     blink=False,
-    ctlim=600,
+    tdur_secs=30,
     faderate=None,
     fadeamt=2,
 ):
@@ -242,8 +182,9 @@ def movesome(
         cu = cfwd if i % 2 == 0 else cbkw
         eyes.append(
             Blinker(
-                2 * random.randint(0, (npix // 2) - 1),
+                random.randint(0, (npix - gap - 1)),
                 pix,
+                gap=gap,
                 color=cu,
                 autoblink=blink,
             )
@@ -251,24 +192,24 @@ def movesome(
     # print("Num Eyes: ", len(eyes))
     # print(eyes)
     now = time.ticks_ms()
+    tend = None if not tdur_secs else time.ticks_add(now, tdur_secs * 1000)
     for eye in eyes:
         eye.start(now)
     movet = time.ticks_add(now, moverate * 1000)
-    while ctlim is None or ct < ctlim:
-        now = time.ticks_ms()
+    while tend is None or ((now := time.ticks_ms()) < tend):
         n = time.ticks_diff(now, movet)
         if n >= 0:
             for i in range(len(eyes)):
                 eye = eyes[i]
                 if random.randint(0, 100) < 5:
-                    np = 2 * random.randint(0, (npix // 2) - 1)
+                    np = random.randint(0, (npix - gap - 1))
                     # eye.setcolor(
                     #    (eye.color[0], eye.color[1], (eye.color[2] + 10) % 256)
                     # )
                 elif i % 2 == 0:
-                    np = (eye.pos + 2) % npix
+                    np = (eye.pos + gap + 1) % npix
                 else:
-                    np = (eye.pos - 2) % npix
+                    np = (eye.pos - gap - 1) % npix
                 eye.setpos(np)
             movet = time.ticks_add(now, moverate * 1000)
         if blink:
@@ -278,5 +219,4 @@ def movesome(
             for b in eyes:
                 b.check(n, fade=fade)
         time.sleep(0.2)
-        ct = ct + 1
     return eyes

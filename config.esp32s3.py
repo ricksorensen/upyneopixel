@@ -24,12 +24,20 @@ _DEFAULT_BRIGHT = None
 _DEEPSLEEP = 0.5  # check every 30 minutes
 _DSLEEP_START = 17  # Time to wake from sleep , fractional hour, local STANDARD time
 _DSLEEP_STOP = 23
-_RANDOM_RATIO = 10
+_RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = False
 _SUFFIX = "178s3"
 
 # effects
+# FF: Fireflies
+# FFNUM=nfireflies
+# RAND: Random colors
+# TEMP: show temp
+# FWORK: use fireworks
 _FIRETOP = None
-_EVERYDAY_OPT = "FFNUM=30, TEMP, RAND, FWORK"
+_EVERYDAY_OPT = "FFNUM=15, TEMP, RAND"
 # _EVERYDAY_OPT = "FWORK"
+
+# Halloween
+_EYEGAP = 2
