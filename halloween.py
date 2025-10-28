@@ -3,12 +3,11 @@ import randBlinkerFade as doeyes
 import random
 import gc
 import logging
+import config
 
 logger = logging.getLogger(__name__)
 
 
-__ONTIME_CDT = 18  # hour CDT to start
-__neyes = 8
 __mrate = 25
 
 
@@ -64,9 +63,10 @@ def selecteyes(
 
 
 class Halloween(holiday.Holiday):
-    def __init__(self, pix, *, dur=100, gap=1, nrandom=None, bright=0.1):
+    def __init__(self, pix, *, dur=100, gap=1, neyes=None, nrandom=None, bright=0.1):
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
         self.gap = gap
+        self.neyes = neyes if neyes is not None else len(self.pix) // 15
 
     def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
@@ -79,11 +79,10 @@ class Halloween(holiday.Holiday):
     def run(self, *, choice=None, bright=None):
         if bright is None:
             bright = self.bright
-        neyeu = len(self.pix) // 15
         logger.warning("starting halloween ~ 5min")
         selecteyes(
             self.pix,
-            neyes=neyeu,  # __neyes,
+            neyes=config._NEYES,  # self.neyes,  __neyes,
             moverate=__mrate,
             ncycles=5,
             blink=True,
@@ -92,7 +91,7 @@ class Halloween(holiday.Holiday):
             faderate=1,
             fadeamt=3,
             flydur=self.dur,  # 2400 steps at .1/2 step is 120s/3m
-            flyrate=0.1,
+            flyrate=config._FLYRATE,
             flybounce=True,
             flyblink=False,
         )

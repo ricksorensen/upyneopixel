@@ -30,8 +30,15 @@ class Blinker:
         self.opentrange = [1000, 2000]
 
     def __repr__(self):
-        rv = "Blinker: active={} pos={} color={} opent={} closet={}".format(
-            self.active, self.pos, self.color, self.opentime, self.closetime
+        rv = (
+            "Blinker: active={} pos={} color={} opent={} closet={} autoblink={}".format(
+                self.active,
+                self.pos,
+                self.color,
+                self.opentime,
+                self.closetime,
+                self.autoblink,
+            )
         )
         return rv
 
@@ -196,9 +203,8 @@ def movesome(
     for eye in eyes:
         eye.start(now)
     movet = time.ticks_add(now, moverate * 1000)
-    while tend is None or ((now := time.ticks_ms()) < tend):
-        n = time.ticks_diff(now, movet)
-        if n >= 0:
+    while tend is None or (time.ticks_diff(tend, now := time.ticks_ms()) > 0):
+        if time.ticks_diff(now, movet) >= 0:
             for i in range(len(eyes)):
                 eye = eyes[i]
                 if random.randint(0, 100) < 5:
@@ -217,6 +223,6 @@ def movesome(
             if faderate is not None and (ct % faderate == 0):
                 fade = fadeamt
             for b in eyes:
-                b.check(n, fade=fade)
-        time.sleep(0.2)
+                b.check(now, fade=fade)
+        time.sleep(0.1)
     return eyes
