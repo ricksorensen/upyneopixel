@@ -140,6 +140,7 @@ def start(
             logger.info(endstat[-1])
             stoptime = config._DSLEEP_STOP if hasattr(config, "_DSLEEP_STOP") else 23
             brightlevel = checkstart.getBrightness()
+            mqttquick.checkconfig()
             effects = [
                 holiday.NoDate(
                     pix,
@@ -189,6 +190,7 @@ def start(
                     bright=brightlevel,
                     dur=config._LONG_DUR,
                     gap=config.__dict__.get("_EYEGAP", 1),
+                    neyes=config.__dict__.get("_NEYES", 5),
                 ),
                 fire.Fire(
                     pix,
@@ -242,6 +244,7 @@ def start(
             print(f"Start memory  {gc.mem_free()}")
             endstat.append("holidays created")
             while True:
+                mqttquick.checkconfig()
                 gc.collect()
                 brightlevel = checkstart.getBrightness()
                 logger.debug(f"Brightness: {brightlevel}")
@@ -301,4 +304,5 @@ def start(
     logger.warning(f"All done: {endstat}")
 
     logging.shutdown()
+    mqttquick.checkconfig(done=True)
     return endstat
