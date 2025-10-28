@@ -27,6 +27,7 @@ _DSLEEP_STOP = 23
 _RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = False
+_LOGLEVEL = None
 _SUFFIX = "178s3"
 
 # effects
@@ -41,3 +42,5 @@ _EVERYDAY_OPT = "FFNUM=15, TEMP, RAND"
 
 # Halloween
 _EYEGAP = 2
+_NEYES = 8
+_FLYRATE = 1.25  # seconds
