@@ -1,3 +1,4 @@
+import config  # makesur config is global instance
 import time
 import holiday
 
@@ -78,3 +79,43 @@ def sendmsg(msg, topic=b"alert/message", addtopic=""):
     mqttc.connect()
     mqttc.publish(topic + addtopic, msg, retain=True)
     mqttc.disconnect()
+
+
+def _sub_np(topic, msg):
+    if b"EYEGAP" in topic:
+        config._EYEGAP = int(msg)
+    elif b"NEYES" in topic:
+        config._NEYES = int(msg)
+    elif b"FLYRATE" in topic:
+        config._FLYRATE = float(msg)
+    elif b"EVERYDAY_OPT" in topic:
+        config._EVERYDAY_OPT = msg
+    elif b"DSLEEP_START" in topic:
+        config.DSLEEP_START = float(msg)
+    elif b"DEBUG" in topic:
+        config._DEBUG = "True" in msg
+    elif b"CHECK" in topic:
+        print("CHECK")
+    # print(f" Incoming: {topic} -> {msg}")
+
+
+_config_mqtt = None
+
+
+# remember to send message as retained
+def checkconfig(done=False):
+    global _config_mqtt
+    if done:
+        if _config_mqtt is not None:
+            _config_mqtt.disconnect()
+        _config_mqtt = None
+    else:
+        if _config_mqtt is None:
+            _config_mqtt = MQTTClient("esp32c3xiaoCfig", "192.168.1.88")
+            _config_mqtt.set_callback(_sub_np)
+            _config_mqtt.connect()
+            _config_mqtt.subscribe(topic=b"neopixel/#")
+        while _config_mqtt.check_msg() is not None:
+            time.sleep(0.001)
+
+    # print(f"checkcontrol stop={dostp}  start={dostr}")
