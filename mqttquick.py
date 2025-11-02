@@ -1,8 +1,10 @@
 import config  # makesur config is global instance
 import time
 import holiday
-
+import logging
 from umqtt.simple import MQTTClient
+
+logger = logging.getLogger(__name__)
 
 
 def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
@@ -15,10 +17,14 @@ def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
         if ((hrsleep is not None) and (hrsleep > 0))
         else f"alert/wake{addtopic}"
     )
-    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
-    mqttc.connect()
-    mqttc.publish(topic, msg, retain=True)
-    mqttc.disconnect()
+    try:
+        mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
+        mqttc.connect()
+        mqttc.publish(topic, msg, retain=True)
+        mqttc.disconnect()
+        logger.debug(f"msgalert: {msg} -> {topic}")
+    except Exception as connerr:
+        logger.exception("msgalert: mqtcc connection error", exc_info=connerr)
 
 
 def msgspecial(msgin, topic):
@@ -29,10 +35,13 @@ def msgspecial(msgin, topic):
         )
         + msgin
     )
-    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
-    mqttc.connect()
-    mqttc.publish(topic, msg, retain=True)
-    mqttc.disconnect()
+    try:
+        mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
+        mqttc.connect()
+        mqttc.publish(topic, msg, retain=True)
+        mqttc.disconnect()
+    except Exception as connerr:
+        logger.exception("msgspecial: mqtcc connection error", exc_info=connerr)
 
 
 _controlstate = 0
@@ -55,30 +64,36 @@ def _sub_cb(topic, msg):
 
 # remember to send message as retained
 def checkcontrol(topic=b"alert/control"):
-    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
-    mqttc.set_callback(_sub_cb)
-    mqttc.connect()
-    mqttc.subscribe(topic)
-    ts = time.ticks_ms()
     newcontrol = _controlstate
-    while time.ticks_diff(time.ticks_ms(), ts) < 3000:
-        mqttc.check_msg()
-        if _controlstate != newcontrol:
-            newcontrol = _controlstate
-            if newcontrol & 0x04 == 0:
-                mqttc.publish(topic, b"okay", retain=True)
-            break
-        time.sleep(0.5)
-    mqttc.disconnect()
+    try:
+        mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88")
+        mqttc.set_callback(_sub_cb)
+        mqttc.connect()
+        mqttc.subscribe(topic)
+        ts = time.ticks_ms()
+        while time.ticks_diff(time.ticks_ms(), ts) < 3000:
+            mqttc.check_msg()
+            if _controlstate != newcontrol:
+                newcontrol = _controlstate
+                if newcontrol & 0x04 == 0:
+                    mqttc.publish(topic, b"okay", retain=True)
+                break
+            time.sleep(0.5)
+        mqttc.disconnect()
+    except Exception as connerr:
+        logger.exception("checkcontrol: mqtcc connection error", exc_info=connerr)
     # print(f"checkcontrol stop={dostp}  start={dostr}")
     return newcontrol & 0x03
 
 
 def sendmsg(msg, topic=b"alert/message", addtopic=""):
-    mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
-    mqttc.connect()
-    mqttc.publish(topic + addtopic, msg, retain=True)
-    mqttc.disconnect()
+    try:
+        mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
+        mqttc.connect()
+        mqttc.publish(topic + addtopic, msg, retain=True)
+        mqttc.disconnect()
+    except Exception as connerr:
+        logger.exception("sendmsg: mqtcc connection error", exc_info=connerr)
 
 
 def _sub_np(topic, msg):
@@ -105,17 +120,22 @@ _config_mqtt = None
 # remember to send message as retained
 def checkconfig(done=False):
     global _config_mqtt
-    if done:
-        if _config_mqtt is not None:
-            _config_mqtt.disconnect()
-        _config_mqtt = None
-    else:
-        if _config_mqtt is None:
-            _config_mqtt = MQTTClient("esp32c3xiaoCfig", "192.168.1.88")
-            _config_mqtt.set_callback(_sub_np)
-            _config_mqtt.connect()
-            _config_mqtt.subscribe(topic=b"neopixel/#")
-        while _config_mqtt.check_msg() is not None:
-            time.sleep(0.001)
-
-    # print(f"checkcontrol stop={dostp}  start={dostr}")
+    if config._USE_NETWORK:
+        if done:
+            if _config_mqtt is not None:
+                _config_mqtt.disconnect()
+            _config_mqtt = None
+        else:
+            try:
+                if _config_mqtt is None:
+                    _config_mqtt = MQTTClient("esp32c3xiaoCfig", "192.168.1.88")
+                    _config_mqtt.set_callback(_sub_np)
+                    _config_mqtt.connect()
+                    _config_mqtt.subscribe(topic=b"neopixel/#")
+                while _config_mqtt.check_msg() is not None:
+                    time.sleep(0.001)
+            except Exception as connerr:
+                _config_mqtt = None
+                logger.exception(
+                    "checkconfig: mqtcc connection error", exc_info=connerr
+                )
