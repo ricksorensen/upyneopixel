@@ -65,3 +65,4 @@ Known holidays (summer holidays omitted until solar can provide power!)
 Define2
 :  Does this work?
 
+![abc](neoschem.png)
