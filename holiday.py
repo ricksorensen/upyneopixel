@@ -4,6 +4,8 @@ import gc
 import runleds
 import twinkle
 import logging
+import simpfirefly
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,22 @@ class Holiday:
 
 class Hanukkah(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1):
+        self.ffnum = 0
+        self.choices = []
+        try:
+            if "FF" in config._CHRISTMAS_OPT:
+                self.ffnum = 20
+                ifn = config._CHRISTMAS_OPT.find("FFNUM=")
+                if ifn >= 0:
+                    ife = ifn + config._CHRISTMAS_OPT[ifn:].find(",")
+                    self.ffnum = int(config._CHRISTMAS_OPT[ifn + 6 : ife])
+                self.choices.append("FF")
+            if "TWIN" in config._CHRISTMAS_OPT:
+                self.choices.append("TWINKLE")
+            if "STRE" in config._CHRISTMAS_OPT:
+                self.choices.append("STREAM")
+        except AttributeError:
+            self.ffnum = 0
         self.data = runleds.test_dataa(expscale=6, b=0.3, pixlen=len(pix), reverse=True)
         super().__init__(pix, dur=dur, nrandom=nrandom, bright=bright)
         self.twinkdata = twinkle.hanukkah_col
@@ -55,9 +73,19 @@ class Hanukkah(Holiday):
     def run(self, *, choice=None, bright=None):
         if bright is None:
             bright = self.bright
-        if choice is None:
-            choice = random.choice([True, False])
-        if choice:
+        if choice is None and len(self.choices) > 0:
+            choice = random.choice(self.choices)
+        if self.ffnum > 0 and choice == "FF":
+            logger.warning(f"start christmas firefly {self.dur}")
+            simpfirefly.run_flies(
+                self.pix,
+                num_flashes=self.ffnum,
+                dur=self.dur,
+                bright=bright,
+                colors=simpfirefly._colorsbw,
+            )
+
+        elif choice == "STREAM":
             logger.warning(f"start hanukkah full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
@@ -76,6 +104,22 @@ class Hanukkah(Holiday):
 class Christmas(Holiday):
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
         # self.data = cbytes.hls_g_r_b_med if len(pix) > 75 else cbytes.hsv_g_r_b
+        self.ffnum = 0
+        self.choices = []
+        try:
+            if "FF" in config._CHRISTMAS_OPT:
+                self.ffnum = 20
+                ifn = config._CHRISTMAS_OPT.find("FFNUM=")
+                if ifn >= 0:
+                    ife = ifn + config._CHRISTMAS_OPT[ifn:].find(",")
+                    self.ffnum = int(config._CHRISTMAS_OPT[ifn + 6 : ife])
+                self.choices.append("FF")
+            if "TWIN" in config._CHRISTMAS_OPT:
+                self.choices.append("TWINKLE")
+            if "STRE" in config._CHRISTMAS_OPT:
+                self.choices.append("STREAM")
+        except AttributeError:
+            self.ffnum = 0
         self.data = runleds.test_dataa(
             expscale=6, b=0.25, pixlen=len(pix), ci=0, reverse=False
         )
@@ -101,9 +145,19 @@ class Christmas(Holiday):
     def run(self, *, sf=None, bright=None, choice=None):
         if bright is None:
             bright = self.bright
-        if choice is None:
-            choice = random.choice([True, False])
-        if choice:
+        if choice is None and len(self.choices) > 0:
+            choice = random.choice(self.choices)
+        if self.ffnum > 0 and choice == "FF":
+            logger.warning(f"start christmas firefly {self.dur}")
+            simpfirefly.run_flies(
+                self.pix,
+                num_flashes=self.ffnum,
+                dur=self.dur,
+                bright=bright,
+                colors=simpfirefly._colorsrg,
+            )
+
+        elif choice == "STREAM":
             logger.warning(f"start christmas full {self.dur}")
             runleds.loop_led_time(
                 self.pix,
@@ -113,7 +167,7 @@ class Christmas(Holiday):
                 nrandom=self.nrandom,
                 bright=bright,
             )
-        else:
+        else:  # TWINKLE
             logger.warning(f"start christmas twinkle {self.dur}")
             twinkle.doTwinkle(self.pix, self.twinkdata, tdur_sec=self.dur)
         gc.collect()

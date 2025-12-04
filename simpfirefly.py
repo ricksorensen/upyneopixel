@@ -1,10 +1,10 @@
 import gc
+import logging
 import random
 import time
-import logging
 
 logger = logging.getLogger(__name__)
-colors = [
+_colors = [
     (232, 100, 255),  # Purple
     (200, 200, 20),  # Yellow
     (30, 200, 200),  # Blue
@@ -12,13 +12,22 @@ colors = [
     (50, 200, 10),
 ]
 
+_colorsrg = [
+    (20, 200, 0),
+    (200, 20, 0),
+]
 
-max_len = 500
+_colorsbw = [
+    (0, 15, 200),
+    (200, 120, 120),
+]
+
+max_len = 100
 min_len = 50
 # pixelnum, posn in flash, flash_len, direction
 
 
-def run_flies(pix, num_flashes=10, dur=120, bright=1.0):
+def run_flies(pix, num_flashes=10, dur=120, bright=1.0, colors=_colors):
     npix = len(pix)
     cu = [(int(c[0] * bright), int(c[1] * bright), int(c[2] * bright)) for c in colors]
     flashing = []
@@ -60,13 +69,14 @@ def run_flies(pix, num_flashes=10, dur=120, bright=1.0):
     gc.collect()
 
 
-def testit(pin=2, plen=120, num_flashes=20, dur=10000, bright=1.0):
-    import neopixel
+def testit(pin=2, plen=120, num_flashes=20, dur=10000, bright=1.0, colors=_colors):
     import machine
+    import neopixel
 
     run_flies(
         neopixel.NeoPixel(machine.Pin(pin), plen),
         num_flashes=num_flashes,
         dur=dur,
         bright=bright,
+        colors=colors,
     )
