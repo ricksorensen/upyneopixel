@@ -68,7 +68,7 @@ def start(
             controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
             if controlmsg & 0x01 == 1:
                 endstat.append("Stopped by mqtt message")
-                logger.warning("Stopped by mqtt message")
+                logger.error("Stopped by mqtt message")
                 logging.shutdown()
                 return endstat
             elif controlmsg & 0x02 == 2:
@@ -97,10 +97,11 @@ def start(
                     retry = 5
                     while retry > 0:
                         retry = retry - 1
-                        ntptime.timeout = 5
+                        ntptime.timeout = 100
                         try:
                             ntptime.settime()
                             retry = 0
+                            logger.error("Set date from ntp")
                             endstat.append("set ntp date")
                         except Exception as ntpexcept:
                             endstat.append(f"ntp timeout {retry}")
@@ -111,6 +112,7 @@ def start(
                                 pix.write()
                                 # fall through and use prior RTC setting
                                 # raise ntpexcept
+                                logger.error("Failed ntp set date")
                 dt = holiday.rjslocaltime(tzoff=-6)
                 endstat.append(f"set date {dt}")
 
