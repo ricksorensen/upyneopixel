@@ -120,15 +120,16 @@ class Christmas(Holiday):
                 self.choices.append("STREAM")
         except AttributeError:
             self.ffnum = 0
-        self.data = runleds.test_dataa(
-            expscale=6, b=0.25, pixlen=len(pix), ci=0, reverse=False
-        )
         self.data = (
-            self.data
-            + runleds.test_dataa(
-                expscale=6, b=0.25, pixlen=len(pix), ci=1, reverse=False
+            runleds.test_datab(
+                expscale=15, b=0.25, pixlen=len(pix), ci=0, reverse=False
+            )
+            + [[1, 0, 0], [0, 0, 0], [0, 1, 0]]
+            + runleds.test_datab(
+                expscale=15, b=0.25, pixlen=len(pix), ci=1, reverse=False
             )[::-1]
         )
+
         if sf is not None:
             self.data = runleds.scale_pixels(self.data, sf)
         self.twinkdata = twinkle.christmas_col

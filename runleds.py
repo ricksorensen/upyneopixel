@@ -26,6 +26,20 @@ def dofade_exp(ci=2, nstep=10, b=1, expscale=3):
     return cu
 
 
+def dofadeblk_exp(ci=2, nstep=10, b=1, expscale=3):
+    import math
+
+    sf = 255 / math.exp(nstep / expscale)
+    cu = []
+    clevel = int(255 * b)
+
+    for s in range(nstep):
+        npv = int(b * sf * math.exp(s / expscale))
+        cu.append([clevel - npv if i == ci else 0 for i in range(3)])
+    # print(cu)
+    return cu
+
+
 # @micropython.native
 def fillpixel(src, leds, start=0, clear=True):
     if clear:
@@ -111,6 +125,16 @@ def test_dataa(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
     norm = 2 if reverse else 1
     step = min(pixlen // norm - 5, 50 // norm)
     fwd = dofade_exp(ci=ci, nstep=step, b=b, expscale=expscale)
+    # print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
+    if reverse:
+        fwd = fwd + fwd[::-1]
+    return fwd
+
+
+def test_datab(expscale=3, b=0.25, pixlen=300, reverse=True, ci=2):
+    norm = 2 if reverse else 1
+    step = min(pixlen // norm - 5, 50 // norm)
+    fwd = dofadeblk_exp(ci=ci, nstep=step, b=b, expscale=expscale)
     # print(f"May need to fix: step={step} pixlen={pixlen} fwdlen={len(fwd)}")
     if reverse:
         fwd = fwd + fwd[::-1]
