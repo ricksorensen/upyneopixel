@@ -61,16 +61,15 @@ try:
         if (light > config._LDR_TURNON) and (8 < hrnow < stop):
             hrsleep = 0
         temp = None
+        c = None
         if pix is not None:
             pix.fill((0, 0, 0))
-            if ((hrnow < 8.5) or (hrnow > 15.5)) and (everydayu is not None):
+            if everydayu is not None:
                 c, temp = everydayu.getTempColor(b=getBrightness())
+            if ((hrnow < 8.5) or (hrnow > 15.5)) and (c is not None):
                 # print("Setting day temp  ", c)
                 for i in range(len(pix) - 60, len(pix)):
                     pix[i] = c
-            else:
-                # print("no everydayu passed")
-                pass
         if (dosleep is not None) and (hrsleep > 0):
             logger.info(f"Deep Sleep {hrsleep} {temp}")
             pix.write()
