@@ -101,7 +101,11 @@ def start(
                         try:
                             ntptime.settime()
                             retry = 0
-                            logger.error("Set date from ntp")
+                            logger.info("Set date from ntp")
+                            mqttquick.msgspecial(
+                                "set date from ntptime",
+                                "alert/timeset" + config._SUFFIX,
+                            )
                             endstat.append("set ntp date")
                         except Exception as ntpexcept:
                             endstat.append(f"ntp timeout {retry}")
@@ -112,6 +116,10 @@ def start(
                                 pix.write()
                                 # fall through and use prior RTC setting
                                 # raise ntpexcept
+                                mqttquick.msgspecial(
+                                    "failed ntp set date",
+                                    "alert/timeset" + config._SUFFIX,
+                                )
                                 logger.error("Failed ntp set date")
                 dt = holiday.rjslocaltime(tzoff=-6)
                 endstat.append(f"set date {dt}")
@@ -120,22 +128,30 @@ def start(
                 import machine
 
                 r = machine.RTC()
-                if force_date is None:
-                    force_date = (
-                        (1999, 1, 2) if config._USE_DATE is None else config._USE_DATE
+                if (force_date is None) and (config._USE_DATE is not None):
+                    force_date = config._USE_DATE
+                if force_date is not None:
+                    r.datetime(
+                        (
+                            force_date[0],
+                            force_date[1],
+                            force_date[2],
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                        )
                     )
-                r.datetime(
-                    (
-                        force_date[0],
-                        force_date[1],
-                        force_date[2],
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
+                    mqttquick.msgspecial(
+                        f"force date {r.datetime()[0:3]}",
+                        "alert/timeset" + config._SUFFIX,
                     )
-                )
+                else:
+                    mqttquick.msgspecial(
+                        f"using default RTC {r.datetime()[0:3]}",
+                        "alert/timeset" + config._SUFFIX,
+                    )
                 dt = time.localtime()
                 endstat.append("RTC time used")
             endstat.append(f"date: {dt}")
