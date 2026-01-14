@@ -71,6 +71,23 @@ def randomColor(bright):
     return colorsupport.colorwheel(ci, bright=bright)
 
 
+@micropython.native
+def pushall(leds, start=1):
+    sp = start * 3
+    ep = len(leds) * 3 - start
+    leds.buf[sp:] = leds.buf[0:ep]
+    for i in range(0, start):
+        leds[i] = (0, 0, 0)
+
+
+def dorandompush(leds, nrandom=None, bright=1, start=1):
+    pushall(leds, start=start)
+    if nrandom is not None and random.randint(0, 10) > 8:
+        leds[0] = randomColor(bright=bright)
+    leds.write()
+    gc.collect()
+
+
 def dorandom(leds, nrandom=None, bright=1):
     if nrandom is not None and random.randint(0, 10) > 8:
         for _ in range(nrandom):
@@ -98,7 +115,7 @@ def loop_led_time(
             fillpixel(src, leds, start=i, clear=sclr)
         elif sclr:
             leds.fill((0, 0, 0))
-        dorandom(leds, nrandom=nrandom, bright=bright)
+        dorandompush(leds, nrandom=nrandom, bright=bright)
         if dly:
             time.sleep(dly)
         i = (i + step) % llen
