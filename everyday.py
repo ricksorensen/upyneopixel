@@ -152,7 +152,7 @@ class Everyday(Holiday):
                     self.pix,
                     None,
                     tdur_secs=self.dur,
-                    sclr=True,
+                    # sclr=True,
                     nrandom=len(self.pix) // 3,
                     bright=bright,
                 )
