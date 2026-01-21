@@ -1,3 +1,4 @@
+import machine
 import logging
 
 logging.basicConfig(
@@ -57,7 +58,8 @@ def start(
     hardsleep = config._DEEPSLEEP  # should read from config.py
     starttime = config._DSLEEP_START
     check_sleep = checkstart.setCheckStart(lightSensor=config._DAYNIGHT_ON)
-
+    bootmsg = f"Boot: {machine.reset_cause()} {delayStart}"
+    logger.info(bootmsg)
     if config._USE_NETWORK:
         logger.debug("starting webrepl " + config._IP_ADDR)
         allokay = netconnect.dowrepl(ssid=None, myIP=config._IP_ADDR)
@@ -65,6 +67,7 @@ def start(
         logger.warning(f"net status: {allokay}")
         config._USE_NETWORK = allokay
         if allokay:
+            mqttquick.sendmsg(bootmsg, addtopic=config._SUFFIX)
             controlmsg = mqttquick.checkcontrol("alert/control" + config._SUFFIX)
             if controlmsg & 0x01 == 1:
                 endstat.append("Stopped by mqtt message")
@@ -125,8 +128,6 @@ def start(
                 endstat.append(f"set date {dt}")
 
             else:
-                import machine
-
                 r = machine.RTC()
                 if (force_date is None) and (config._USE_DATE is not None):
                     force_date = config._USE_DATE
