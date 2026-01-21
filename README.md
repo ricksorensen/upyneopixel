@@ -1,6 +1,12 @@
 # upyneopixel
 Light show for the yard.
 
+## 20260105: 
++ XIAO ESP32S3 Micropython version 1.27.0
++ git version Display_v1.02
++ `config.esp32s3.py`
+
+
 Pixel Strips I have:
 
 - [WS2812BWaterproof](https://www.amazon.com/gp/product/B07P7WWRVH/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1 "60LED/m 5m long, waterproof")
