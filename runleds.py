@@ -98,7 +98,15 @@ def dorandom(leds, nrandom=None, bright=1):
 
 
 def loop_led_time(
-    leds, src, tdur_secs=60, step=1, dly=0.1, sclr=False, nrandom=None, bright=0.1
+    leds,
+    src,
+    tdur_secs=60,
+    step=1,
+    dly=0.1,
+    sclr=False,
+    nrandom=None,
+    bright=0.1,
+    flow=True,
 ):
     tend = tdur_secs
     if tdur_secs is not None:
@@ -115,7 +123,11 @@ def loop_led_time(
             fillpixel(src, leds, start=i, clear=sclr)
         elif sclr:
             leds.fill((0, 0, 0))
-        dorandompush(leds, nrandom=nrandom, bright=bright)
+        (
+            dorandompush(leds, nrandom=nrandom, bright=bright)
+            if flow
+            else dorandom(leds, nrandom=nrandom, bright=bright)
+        )
         if dly:
             time.sleep(dly)
         i = (i + step) % llen

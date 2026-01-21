@@ -164,7 +164,17 @@ class Everyday(Holiday):
                 # if len(self.pix) < 200:
                 #    norm = 2.4
                 fwpartx.doall(self.pix, vel=80, durms=self.dur * 1000, dly=2, norm=norm)
-                pass
+            else:
+                logger.warning(f"starting everyday random no flow {self.dur}")
+                runleds.loop_led_time(
+                    self.pix,
+                    None,
+                    tdur_secs=self.dur,
+                    sclr=True,
+                    nrandom=len(self.pix) // 3,
+                    bright=bright,
+                    flow=False,
+                )
         return t
 
     def getTempColor(self, b=0.2):
