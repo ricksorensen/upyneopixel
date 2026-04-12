@@ -203,9 +203,9 @@ class Everyday(Holiday):
 
 
 class Aprilfool(Everyday):
-    def run(self):
+    def run(self, *, bright=None):
         logger.warning("April Fools")
-        super().run()
+        super().run(bright)
 
     def chkDate(self, dt=None, run=False, bright=None):
         if dt is None:
