@@ -14,8 +14,9 @@ DO_START=0
 STARTMODULE=main.holiday.py
 
 MAIN = startholiday.py
-LEDSEQ = everyday.py holiday.py runleds.py twinkle.py cpixels.py halloween.py
-PYMODULE = colorsupport.py mqttquick.py netconnect.py webrepl_cfg.py randBlinkerFade.py
+EFFECTS = boom.py fwpartx.py effect_panel.py fire.py simpfirefly.py twinkle.py randBlinkerFade.py
+LEDSEQ = everyday.py holiday.py runleds.py cpixels.py halloween.py
+PYMODULE = colorsupport.py checkstart.py mqttquick.py netconnect.py webrepl_cfg.py 
 CFIGMODULE = config.$(MP_MCU).py
 
 %.mpy: lib/%.py
@@ -30,6 +31,7 @@ upload: $(MAIN) $(LEDSEQ) $(PYMODULE) $(CFIGMODULE)
 	# assumes existence of :/lib/ on mcu
 	mpremote $(MP_PORT) cp $(LEDSEQ) :
 	mpremote $(MP_PORT) cp $(PYMODULE) :
+	mpremote $(MP_PORT) cp $(EFFECTS) :
 	mpremote $(MP_PORT) cp $(CFIGMODULE) :config.py
 ifneq "$(STARTMODULE)" ""
 	mpremote $(MP_PORT) cp $(STARTMODULE) :main.py
