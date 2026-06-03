@@ -13,9 +13,9 @@ _TEMP_PIN = 43  # xiao pin 7: esp32c3 GPIO21 S3 GPIO43
 
 _LDR_PIN = 3  # xiao pin 3: esp32c3 GPIO04    S3 GPIO3
 _LDR_DARKUV = 1100000  # 1100000 for dark # microvolt to define on dark level
-_LDR_TURNON = 170000
+_LDR_TURNON = 1000000
 _LDR_REPORT = True
-
+_LDR_LIGHTNING = 2200000
 # If True, use LDR to determine on/off
 #    False, use TOD to determing on/off
 _DAYNIGHT_ON = True
@@ -27,7 +27,7 @@ _DSLEEP_STOP = 23
 _RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = False
-_LOGLEVEL = None
+_LOGLEVEL = 30
 _SUFFIX = "178s3"
 
 # effects
@@ -36,8 +36,9 @@ _SUFFIX = "178s3"
 # RAND: Random colors
 # TEMP: show temp
 # FWORK: use fireworks
+# LIGHTNING: enable lightning effect
 _FIRETOP = None
-_EVERYDAY_OPT = "FFNUM=15, TEMP, RAND"
+_EVERYDAY_OPT = "FFNUM=15, RAND, FWORK"
 _CHRISTMAS_OPT = "FFNUM=15, TWINKLE, STREAM"
 
 # _EVERYDAY_OPT = "FWORK"
