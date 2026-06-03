@@ -14,10 +14,13 @@ DO_START=0
 STARTMODULE=main.holiday.py
 
 MAIN = startholiday.py
-EFFECTS = boom.py fwpartx.py effect_panel.py fire.py simpfirefly.py twinkle.py randBlinkerFade.py
+EFFECTS = effects.py boom.py fwpartx.py effect_panel.py fire.py simpfirefly.py twinkle.py randBlinkerFade.py lightning.py
 LEDSEQ = everyday.py holiday.py runleds.py cpixels.py halloween.py
 PYMODULE = colorsupport.py checkstart.py mqttquick.py netconnect.py webrepl_cfg.py 
 CFIGMODULE = config.$(MP_MCU).py
+
+STDEXTLIB = neopixel ntptime umqtt.simple ds18x20 time
+CPYEXTLIB = fixlib/logging.mpy
 
 %.mpy: lib/%.py
 	mpy-cross -o $@ $<
@@ -40,12 +43,14 @@ ifneq  "$(DO_START)" "1"
 	mpremote $(MP_PORT) cp nostart :nostart
 endif
 
-#config.py:
-#	python buildconfig.py $(MP_MCU)
+extlibs:
+	mpremote mip install $(STDEXTLIB)
+	mpremote cp $(CPYEXTLIB) :/lib
+
 
 help:
 	@echo "Holiday pixel source load"
 	@echo "upload:  default target, load python files to mcu"
 	@echo "         MP_PORT port to use default $(MP_PORT)"
-	@echo "         MP_MCU mcu to use (rp2, esp32c3) default $(MP_MCU)"
+	@echo "         MP_MCU mcu to use (rp2, esp32c3, esp32s3) default $(MP_MCU)"
 	@echo "         DO_START=1 if auto start of startholiday"

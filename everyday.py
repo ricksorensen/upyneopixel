@@ -7,6 +7,7 @@ import config
 import machine
 import random
 import simpfirefly
+import lightning
 
 # import boom
 import fwpartx
@@ -64,7 +65,6 @@ class Everyday(Holiday):
     ):
         self.ffnum = 0
         self.temp = False
-        self.fworks = False
         self.dorand = False
         try:
             if "FF" in config._EVERYDAY_OPT:
@@ -74,7 +74,6 @@ class Everyday(Holiday):
                     ife = ifn + config._EVERYDAY_OPT[ifn:].find(",")
                     self.ffnum = int(config._EVERYDAY_OPT[ifn + 6 : ife])
             self.temp = "TEMP" in config._EVERYDAY_OPT
-            self.fworks = "FWORK" in config._EVERYDAY_OPT
             self.dorand = "RAND" in config._EVERYDAY_OPT
         except AttributeError:
             self.ffnum = 0
@@ -128,7 +127,7 @@ class Everyday(Holiday):
             nrand = len(self.pix) // 3
 
         logger.debug("everyday t={},  nff={}".format(tout, self.ffnum))
-        if self.temp and ((config._EVERYDAY_OPT == "TEMP") or ((tod[4] % 30) < 5)):
+        if self.temp and (("TEMP" in config._EVERYDAY_OPT) or ((tod[4] % 30) < 5)):
             logger.warning(f"starting everyday runtemp {self.dur}")
             runleds.loop_led_time(
                 self.pix,
@@ -140,13 +139,17 @@ class Everyday(Holiday):
             )
             # simpfirefly.run_flies(self.pix, num_flashes=20, dur=self.dur, bright=bright)
         else:
-            opt = random.randrange(0, 10)
-            if opt < 3 and self.ffnum > 0:
+            opt = random.randrange(0, 100)
+            if "LIGHTNING" in config._EVERYDAY_OPT:
+                logger.warning(f"asking to start everyday lightning {self.dur}")
+                if lightning.run_flashes(self.pix, dur=self.dur):
+                    return t
+            if opt < 30 and self.ffnum > 0:
                 logger.warning(f"starting everyday firefly  {self.dur}")
                 simpfirefly.run_flies(
                     self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
                 )
-            elif 3 <= opt < 8 and self.dorand:
+            elif 30 <= opt < 80 and self.dorand:
                 logger.warning(f"starting everyday random {self.dur}")
                 runleds.loop_led_time(
                     self.pix,
@@ -156,7 +159,7 @@ class Everyday(Holiday):
                     nrandom=len(self.pix) // 3,
                     bright=bright,
                 )
-            elif opt >= 8 and self.fworks:
+            elif opt >= 80 and "FWORK" in config._EVERYDAY_OPT:
                 logger.warning(f"starting everyday fireworks {self.dur}")
                 # should be fireworks
                 # boom.doall(self.pix, durms=self.dur * 1000, brightness=bright, dly=2)

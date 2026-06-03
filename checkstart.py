@@ -5,6 +5,17 @@ import time
 import config
 import machine
 
+
+def getlightlevel(report=False):
+    chklight = machine.ADC(machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB)
+    light_uv = 0
+    for _ in range(20):
+        light_uv = chklight.read_uv()
+    if report:
+        mqttquick.msgspecial(f"{light_uv}", "alert/lightval" + config._SUFFIX)
+    return light_uv
+
+
 try:
     import esp32
     import network
@@ -25,16 +36,16 @@ try:
         time.sleep(0.2)
         machine.deepsleep(msec)
 
-    def getlightlevel(report=False):
-        chklight = machine.ADC(
-            machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB
-        )
-        light_uv = 0
-        for _ in range(20):
-            light_uv = chklight.read_uv()
-        if report:
-            mqttquick.msgspecial(f"{light_uv}", "alert/lightval" + config._SUFFIX)
-        return light_uv
+    #    def getlightlevel(report=False):
+    #        chklight = machine.ADC(
+    #            machine.Pin(config._LDR_PIN), atten=machine.ADC.ATTN_11DB
+    #        )
+    #        light_uv = 0
+    #        for _ in range(20):
+    #            light_uv = chklight.read_uv()
+    #        if report:
+    #            mqttquick.msgspecial(f"{light_uv}", "alert/lightval" + config._SUFFIX)
+    #        return light_uv
 
     def getBrightness():
         bright = config._DEFAULT_BRIGHT
