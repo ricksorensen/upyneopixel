@@ -19,10 +19,16 @@ LEDSEQ = everyday.py holiday.py runleds.py cpixels.py halloween.py
 PYMODULE = colorsupport.py checkstart.py mqttquick.py netconnect.py webrepl_cfg.py 
 CFIGMODULE = config.$(MP_MCU).py
 
+#esp32c3,s3 used but (probably) builtins
+# ds18x20 neopixel ntptime umqtt.simple time
+# micropython_lib: time adds strftime to time module
 STDEXTLIB = neopixel ntptime umqtt.simple ds18x20 time
 CPYEXTLIB = fixlib/logging.mpy
 
 %.mpy: lib/%.py
+	mpy-cross -o $@ $<
+
+fixlib/logging.mpy: fixlib/rjs.logging.py
 	mpy-cross -o $@ $<
 
 %.mpy: %.py
