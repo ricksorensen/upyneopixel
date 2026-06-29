@@ -129,6 +129,7 @@ class Everyday(Holiday):
         logger.debug("everyday t={},  nff={}".format(tout, self.ffnum))
         if self.temp and (("TEMP" in config._EVERYDAY_OPT) or ((tod[4] % 30) < 5)):
             logger.warning(f"starting everyday runtemp {self.dur}")
+            # print("everyday runtemp")
             runleds.loop_led_time(
                 self.pix,
                 self.data,
@@ -141,25 +142,33 @@ class Everyday(Holiday):
         else:
             opt = random.randrange(0, 100)
             if "LIGHTNING" in config._EVERYDAY_OPT:
+                # print("everyday lightning")
                 logger.warning(f"asking to start everyday lightning {self.dur}")
                 if lightning.run_flashes(self.pix, dur=self.dur):
                     return t
             if opt < 30 and self.ffnum > 0:
+                # print("everyday firefly")
                 logger.warning(f"starting everyday firefly  {self.dur}")
                 simpfirefly.run_flies(
                     self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
                 )
             elif 30 <= opt < 80 and self.dorand:
+                flowdir = random.choice((True, False))
+                # print(f"everyday random flowdir = {flowdir}")
                 logger.warning(f"starting everyday random {self.dur}")
                 runleds.loop_led_time(
                     self.pix,
                     None,
+                    dly=config._FLOW_DELAY,
                     tdur_secs=self.dur,
                     # sclr=True,
                     nrandom=len(self.pix) // 3,
                     bright=bright,
+                    flow=True,
+                    flowdir=flowdir,
                 )
             elif opt >= 80 and "FWORK" in config._EVERYDAY_OPT:
+                # print("everyday firework")
                 logger.warning(f"starting everyday fireworks {self.dur}")
                 # should be fireworks
                 # boom.doall(self.pix, durms=self.dur * 1000, brightness=bright, dly=2)
@@ -168,6 +177,7 @@ class Everyday(Holiday):
                 #    norm = 2.4
                 fwpartx.doall(self.pix, vel=80, durms=self.dur * 1000, dly=2, norm=norm)
             else:
+                # print("everyday random no flow")
                 logger.warning(f"starting everyday random no flow {self.dur}")
                 runleds.loop_led_time(
                     self.pix,

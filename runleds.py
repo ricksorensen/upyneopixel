@@ -71,7 +71,8 @@ def randomColor(bright):
     return colorsupport.colorwheel(ci, bright=bright)
 
 
-@micropython.native
+# no advantage using native for this on esp32c3
+#  @micropython.native
 def pushall(leds, start=1):
     sp = start * 3
     ep = len(leds) * 3 - start
@@ -80,10 +81,25 @@ def pushall(leds, start=1):
         leds[i] = (0, 0, 0)
 
 
-def dorandompush(leds, nrandom=None, bright=1, start=1):
-    pushall(leds, start=start)
+#  @micropython.native
+def pushalldown(leds, start=1):
+    sp = start * 3
+    ep = len(leds.buf) - sp
+    leds.buf[0:ep] = leds.buf[sp:]
+    lled = len(leds)
+    for i in range(lled - start, lled):
+        leds[i] = (0, 0, 0)
+
+
+def dorandompush(leds, nrandom=None, bright=1, start=1, flowdir=True):
+    if flowdir:
+        pushall(leds, start=start)
+        updti = 0
+    else:
+        pushalldown(leds, start=start)
+        updti = len(leds) - 1
     if nrandom is not None and random.randint(0, 10) > 8:
-        leds[0] = randomColor(bright=bright)
+        leds[updti] = randomColor(bright=bright)
     leds.write()
     gc.collect()
 
@@ -102,11 +118,12 @@ def loop_led_time(
     src,
     tdur_secs=60,
     step=1,
-    dly=0.1,
+    dly=0.05,
     sclr=False,
     nrandom=None,
     bright=0.1,
     flow=True,
+    flowdir=True,
 ):
     tend = tdur_secs
     if tdur_secs is not None:
@@ -124,7 +141,7 @@ def loop_led_time(
         elif sclr:
             leds.fill((0, 0, 0))
         (
-            dorandompush(leds, nrandom=nrandom, bright=bright)
+            dorandompush(leds, nrandom=nrandom, bright=bright, flowdir=flowdir)
             if flow
             else dorandom(leds, nrandom=nrandom, bright=bright)
         )
