@@ -13,7 +13,7 @@ _TEMP_PIN = 21  # xiao pin 7: esp32c3 GPIO21
 
 _LDR_PIN = 4  # xiao pin 2: esp32c3 GPIO04
 _LDR_DARKUV = 1100000  # 1100000 for dark # microvolt to define on dark level
-_LDR_TURNON = 170000
+_LDR_TURNON = 1000000
 _LDR_REPORT = True
 _LDR_LIGHTNING = 2200000
 # If True, use LDR to determine on/off
@@ -24,7 +24,7 @@ _DEFAULT_BRIGHT = None
 _DEEPSLEEP = 0.5  # check every 30 minutes
 _DSLEEP_START = 17  # Time to wake from sleep , fractional hour, local STANDARD time
 _DSLEEP_STOP = 23
-_RANDOM_RATIO = 10
+_RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = False
 _LOGLEVEL = None
@@ -38,7 +38,8 @@ _SUFFIX = "174c3"
 # FWORK: use fireworks
 # LIGHTNING: enable lightning effect
 _FIRETOP = None
-_EVERYDAY_OPT = "FFNUM=15, TEMP, RAND, LIGHTNING"
+_EVERYDAY_OPT = "FFNUM=15, RAND, FWORK"
+_FLOW_DELAY = 0.02
 _CHRISTMAS_OPT = "FFNUM=15, TWINKLE, STREAM"
 
 # _EVERYDAY_OPT = "FWORK"
