@@ -69,7 +69,7 @@ try:
         # stime = mqttquick.getstart_time(start)
         # print(f" {dt}.   DS {stime}")
         light = getlightlevel(report=config._USE_NETWORK and config._LDR_REPORT)
-        if (light > config._LDR_TURNON) and (8 < hrnow < stop):
+        if (light > config._LDR_TURNON) and (5 < hrnow < stop):
             hrsleep = 0
         temp = None
         c = None
