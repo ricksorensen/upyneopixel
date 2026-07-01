@@ -22,6 +22,12 @@ _colorsbw = [
     (200, 120, 120),
 ]
 
+_colorsrwb = [
+    (200, 0, 10),
+    (200, 200, 200),
+    (0, 15, 200),
+]
+
 max_len = 100
 min_len = 50
 # pixelnum, posn in flash, flash_len, direction
