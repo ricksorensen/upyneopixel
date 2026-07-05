@@ -109,6 +109,8 @@ def _sub_np(topic, msg):
         config.DSLEEP_START = float(msg)
     elif b"DEBUG" in topic:
         config._DEBUG = "True" in msg
+    elif b"FIRETOP" in topic:
+        config._FIRETOP = "True" in msg
     elif b"CHECK" in topic:
         print("CHECK")
     # print(f" Incoming: {topic} -> {msg}")
