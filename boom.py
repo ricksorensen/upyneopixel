@@ -27,7 +27,7 @@ def HeatColor(temp, b=1):
     return c
 
 
-def flare(pix, flarepos=0, vel=None, b=1):
+def flare(pix, flarepos=0, vel=None, b=1, debug=False):
     flareVel = vel
     if vel is None:
         flareVel = random.randint(50, 90) / 100  # led/iteration
@@ -50,11 +50,13 @@ def flare(pix, flarepos=0, vel=None, b=1):
         flarepos = max(min(len(pix) - 1, flarepos + flareVel), 0)
         flareVel += gravity  # slow down to peak, will go negative to descend
         b *= 0.98  # and fade
+    if debug:
+        print(f"flare: {flarepos}")
     gc.collect()
     return flarepos
 
 
-def explodeloop(pix, flarepos=0):
+def explodeloop(pix, flarepos=0, debug=False):
     nsparks = min(int(flarepos / 2), NUM_SPARK)
     for i in range(nsparks):
         sparkpos[i] = flarepos
@@ -89,14 +91,16 @@ def explodeloop(pix, flarepos=0):
     gc.collect()
 
 
-def doall(pix, durms=50000, brightness=0.5, dly=5, vel=None):
+def doall(pix, durms=50000, brightness=0.5, dly=5, vel=None, debug=False):
     tstart = time.ticks_ms()
     logger.warning(f"Starting boom effect {durms}")
+    if debug:
+        print(f"boom doall: {vel} {durms}")
     while time.ticks_diff(time.ticks_ms(), tstart) < durms:
-        fp = flare(pix, vel=vel, b=brightness)
+        fp = flare(pix, vel=vel, b=brightness, debug=debug)
         # print(f"#Flare Done position {fp}")
         time.sleep(0.5)
-        explodeloop(pix, flarepos=fp)
+        explodeloop(pix, flarepos=fp, debug=debug)
         pix.fill((0, 0, 0))
         pix.write()
         time.sleep(dly)
