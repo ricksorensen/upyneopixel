@@ -8,12 +8,9 @@ logger = logging.getLogger(__name__)
 pixreal = False
 try:
     from neopixel import NeoPixel
-    from time import sleep_ms
 
     pixreal = True
 except ModuleNotFoundError:
-    from upy_backend import NeoPixel
-
     pixreal = False
 
 
@@ -213,12 +210,7 @@ class effect_panel:
 
     def update(self):
         self._pix.write()
-        if pixreal:
-            sleep_ms(10)
-        else:
-            sleep(
-                0.010
-            )  # Make sure there is some dead time before re-triggering the PIO
+        sleep(0.010)  # Make sure there is some dead time before re-triggering the PIO
 
     def fill(self):
         self._pix.fill((0, 0, 0))
