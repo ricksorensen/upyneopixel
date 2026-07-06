@@ -204,9 +204,11 @@ def testit(
         iterlim=iterlim,
         sampinterval=sampinterval,
         useiter=useiter,
-        debugprint=debugprint,
+        debugprint=False,
         norm=norm,
     )
+    if debugprint:
+        print(f"fwpartx testit {flarepos}")
     gc.collect()
     explodeloop(
         pix,
@@ -214,15 +216,15 @@ def testit(
         a=a,
         sampinterval=sampinterval,
         useiter=useiter,
-        debugprint=debugprint,
+        debugprint=False,
         norm=norm,
     )
     gc.collect()
 
 
-def doall(pix, durms=15000, dly=2, vel=73, norm=None, debugprint=False):
+def doall(pix, durms=15000, dly=2, vel=73, norm=None, debug=False):
     tstart = ticks_ms()
     logger.info(f"starting fwpartx {durms}")
     while ticks_diff(ticks_ms(), tstart) < durms:
-        testit(pix, v0=vel, useiter=False, norm=norm, vlim=-1.0, debugprint=debugprint)
+        testit(pix, v0=vel, useiter=False, norm=norm, vlim=-1.0, debugprint=debug)
         sleep(dly)
