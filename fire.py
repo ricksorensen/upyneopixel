@@ -1,9 +1,10 @@
 import holiday
 import effect_panel
+import simpfirefly
 import gc
 import time
 import random
-import boom
+import fwpartx as boom  # was import boom
 import logging
 
 logger = logging.getLogger(__name__)
@@ -46,9 +47,22 @@ class Fire(holiday.Holiday):
         # True is fire on top, else on bottom (inverted for flag)
         firetop = random.choice([True, False]) if self.top is None else self.top
         # True is boom, else fire & flag
-        effect_op = random.choice([True, False]) if self.fw is None else not self.fw
-        # print(f"fire {self.dur} {self.update} {firetop} {effect_op}")
-        if effect_op:
+        effect_op = random.randrange(0, 100)
+        # useffly = random.choice([True, False])
+        # effect_op = random.choice([True, False]) if self.fw is None else not self.fw
+        if self.debug:
+            print(f"fire {self.dur} {self.update} {firetop} {effect_op}")
+        if effect_op < 25:
+            if self.debug:
+                print(f"fire firefly {self.dur}")
+            simpfirefly.run_flies(
+                self.pix,
+                num_flashes=25,
+                dur=self.dur // 1000,
+                bright=bright,
+                colors=simpfirefly._colorsrwb,
+            )
+        elif effect_op < 70:
             gc.collect()
             panel = effect_panel.effect_panel(
                 self.pix, 36, 2 if len(self.pix) < 200 else 6, ledblock=5
@@ -58,6 +72,8 @@ class Fire(holiday.Holiday):
             ct = 0
             # do fire with flag
             logger.warning(f"Starting fire effect {self.dur}")
+            if self.debug:
+                print(f"Starting fire effect {self.dur}")
             while time.ticks_diff(time.ticks_ms(), tstart) < self.dur:
                 panel.firelight(
                     brightness=min(int(bright * 255), 255),
@@ -80,6 +96,16 @@ class Fire(holiday.Holiday):
                 panel.update()
                 time.sleep_ms(self.update)
         else:
+            if self.debug:
+                print(f"Starting fire boom {self.dur}")
             # to fire work
-            boom.doall(self.pix, durms=self.dur, brightness=bright, dly=self.update)
+            boom.doall(
+                self.pix,
+                vel=80,
+                durms=self.dur,
+                # brightness=bright,
+                dly=2,  # self.update,
+                norm=None,
+                debug=self.debug,
+            )
         gc.collect()
