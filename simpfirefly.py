@@ -12,6 +12,11 @@ _colors = [
     (50, 200, 10),
 ]
 
+_colorswarm = [
+    (200, 180, 0),  # Yellow
+    (210, 70, 10),  # orange
+]
+
 _colorsrg = [
     (20, 200, 0),
     (200, 20, 0),
@@ -33,7 +38,7 @@ min_len = 50
 # pixelnum, posn in flash, flash_len, direction
 
 
-def run_flies(pix, num_flashes=10, dur=120, bright=1.0, colors=_colors):
+def run_flies(pix, num_flashes=10, dur=120, bright=1.0, colors=_colorswarm):
     npix = len(pix)
     cu = [(int(c[0] * bright), int(c[1] * bright), int(c[2] * bright)) for c in colors]
     flashing = []
