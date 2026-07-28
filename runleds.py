@@ -75,7 +75,7 @@ def randomColor(bright):
 #  @micropython.native
 def pushall(leds, start=1):
     sp = start * 3
-    ep = len(leds) * 3 - start
+    ep = len(leds) * 3 - sp
     leds.buf[sp:] = leds.buf[0:ep]
     for i in range(0, start):
         leds[i] = (0, 0, 0)
