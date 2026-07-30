@@ -46,10 +46,10 @@ def start(
     force_date=None,
     fixtemp=None,
     debug=False,
-    loglevel=None,
+    # loglevel=None,  current logging.lib does not support this
 ):
-    if loglevel is not None:
-        logging.changeLevel(loglevel)
+    # if loglevel is not None:
+    #     logging.changeLevel(loglevel)
     logger.info("starting lights")
     if interruptStart:
         print("time start up interrupt")
