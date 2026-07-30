@@ -66,6 +66,7 @@ class Everyday(Holiday):
         self.ffnum = 0
         self.temp = False
         self.dorand = False
+        self.rainbow = False
         try:
             if "FF" in config._EVERYDAY_OPT:
                 self.ffnum = 20
@@ -75,6 +76,7 @@ class Everyday(Holiday):
                     self.ffnum = int(config._EVERYDAY_OPT[ifn + 6 : ife])
             self.temp = "TEMP" in config._EVERYDAY_OPT
             self.dorand = "RAND" in config._EVERYDAY_OPT
+            self.rainbow = "RAINBOW" in config._EVERYDAY_OPT
         except AttributeError:
             self.ffnum = 0
         self.data = None
@@ -152,21 +154,33 @@ class Everyday(Holiday):
                 simpfirefly.run_flies(
                     self.pix, num_flashes=self.ffnum, dur=self.dur, bright=bright
                 )
-            elif 30 <= opt < 80 and self.dorand:
-                flowdir = random.choice((True, False))
-                # print(f"everyday random flowdir = {flowdir}")
-                logger.warning(f"starting everyday random {self.dur}")
-                runleds.loop_led_time(
-                    self.pix,
-                    None,
-                    dly=config._FLOW_DELAY,
-                    tdur_secs=self.dur,
-                    # sclr=True,
-                    nrandom=len(self.pix) // 3,
-                    bright=bright,
-                    flow=True,
-                    flowdir=flowdir,
-                )
+            elif 30 <= opt < 80 and (self.dorand or self.rainbow):
+                if self.rainbow:
+                    print("starting rainbow")
+                    runleds.loop_rainbow_time(
+                        self.pix,
+                        tdur_secs=self.dur,
+                        step=config._RAINBOW_STEP,
+                        dly=config._RAINBOW_DLY,
+                        gap=config._RAINBOW_GAP,
+                        bright=bright,
+                    )
+
+                else:
+                    flowdir = random.choice((True, False))
+                    # print(f"everyday random flowdir = {flowdir}")
+                    logger.warning(f"starting everyday random {self.dur}")
+                    runleds.loop_led_time(
+                        self.pix,
+                        None,
+                        dly=config._FLOW_DELAY,
+                        tdur_secs=self.dur,
+                        # sclr=True,
+                        nrandom=len(self.pix) // 3,
+                        bright=bright,
+                        flow=True,
+                        flowdir=flowdir,
+                    )
             elif opt >= 80 and "FWORK" in config._EVERYDAY_OPT:
                 # print("everyday firework")
                 logger.warning(f"starting everyday fireworks {self.dur}")

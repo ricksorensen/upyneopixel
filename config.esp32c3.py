@@ -48,3 +48,6 @@ _CHRISTMAS_OPT = "FFNUM=15, TWINKLE, STREAM"
 _EYEGAP = 2
 _NEYES = 8
 _FLYRATE = 1.25  # seconds
+_RAINBOW_STEP = 1  # pixels
+_RAINBOW_DLY = 0.05  # secs
+_RAINBOW_GAP = 5  # pixels

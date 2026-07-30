@@ -106,13 +106,20 @@ def _sub_np(topic, msg):
     elif b"EVERYDAY_OPT" in topic:
         config._EVERYDAY_OPT = msg
     elif b"DSLEEP_START" in topic:
-        config.DSLEEP_START = float(msg)
+        config._DSLEEP_START = float(msg)
     elif b"DEBUG" in topic:
         config._DEBUG = "True" in msg
     elif b"FIRETOP" in topic:
         config._FIRETOP = "True" in msg
-    elif b"CHECK" in topic:
-        print("CHECK")
+    elif b"RAINBOW_STEP" in topic:
+        config._RAINBOW_STEP = int(msg)
+    elif b"RAINBOW_GAP" in topic:
+        config._RAINBOW_GAP = int(msg)
+    elif b"RAINBOW_DLY" in topic:
+        config._RAINBOW_DLY = float(msg)
+    elif b"_CHECK" in topic:
+        a = {z: vars(config)[z] for z in dir(config) if not z.startswith("__")}
+        print(f"{a}")
     # print(f" Incoming: {topic} -> {msg}")
 
 
@@ -134,8 +141,7 @@ def checkconfig(done=False):
                     _config_mqtt.set_callback(_sub_np)
                     _config_mqtt.connect()
                     _config_mqtt.subscribe(topic=b"neopixel/#")
-                while _config_mqtt.check_msg() is not None:
-                    time.sleep(0.001)
+                _config_mqtt.check_msg()
             except Exception as connerr:
                 _config_mqtt = None
                 logger.exception(

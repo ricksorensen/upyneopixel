@@ -27,7 +27,7 @@ _DSLEEP_STOP = 23.5
 _RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = True
-_LOGLEVEL = "info"  # error, warn, info, debug default is error
+_LOGLEVEL = "warn"  # error, warn, info, debug default is error
 _SUFFIX = "test"
 
 # effects
@@ -37,8 +37,8 @@ _SUFFIX = "test"
 # TEMP: show temp
 # FWORK: use fireworks
 _FIRETOP = None
-# _EVERYDAY_OPT = "FF, RAND, LIGHTNING"
-_EVERYDAY_OPT = "RAND"
+# _EVERYDAY_OPT = "FF, RAND, LIGHTNING, RAINBOW"
+_EVERYDAY_OPT = "RAINBOW"
 _FLOW_DELAY = 0.02
 _CHRISTMAS_OPT = "FFNUM=5, TWINKLE, STREAM"
 # _EVERYDAY_OPT = "FWORK"
@@ -47,3 +47,6 @@ _CHRISTMAS_OPT = "FFNUM=5, TWINKLE, STREAM"
 _EYEGAP = 2
 _NEYES = None
 _FLYRATE = 1  # seconds
+_RAINBOW_STEP = 1  # pixels
+_RAINBOW_DLY = 0.05  # secs
+_RAINBOW_GAP = 5  # pixels

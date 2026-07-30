@@ -71,6 +71,12 @@ def randomColor(bright):
     return colorsupport.colorwheel(ci, bright=bright)
 
 
+def rotate_all(leds, start=1):
+    if start > 0:
+        sp = start * 3
+        leds.buf[:] = leds.buf[-sp:] + leds.buf[:-sp]
+
+
 # no advantage using native for this on esp32c3
 #  @micropython.native
 def pushall(leds, start=1):
@@ -150,6 +156,32 @@ def loop_led_time(
         i = (i + step) % llen
         if i == 0 and tend is None:
             gc.collect()
+    offall(leds)
+    gc.collect()
+
+
+def loop_rainbow_time(
+    leds,
+    tdur_secs=60,
+    step=1,
+    gap=5,
+    dly=0.05,
+    bright=0.1,
+    flowdir=True,
+):
+    tend = tdur_secs
+    if tdur_secs is not None:
+        tend = time.ticks_add(time.ticks_ms(), tend * 1000)
+    i = 0
+    llen = len(leds)
+    # print("loop_led_time: npix = ", llen)
+    leds.fill((0, 0, 0))
+    for i in range(0, len(leds), gap + 1):
+        leds[i] = colorsupport.colorwheel(int(i * 256 / llen) & 255, bright=bright)
+    while tend is None or time.ticks_ms() < tend:
+        rotate_all(leds, start=step)
+        leds.write()
+        time.sleep(dly)
     offall(leds)
     gc.collect()
 
