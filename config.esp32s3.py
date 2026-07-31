@@ -27,7 +27,7 @@ _DSLEEP_STOP = 23
 _RANDOM_RATIO = None
 _USEBITBANG = False
 _DEBUG = False
-_LOGLEVEL = 30
+_LOGLEVEL = 40  # 10 is debug, 20 is info, 30 warn,40 error, 50 critical
 _SUFFIX = "178s3"
 
 # effects
@@ -38,7 +38,7 @@ _SUFFIX = "178s3"
 # FWORK: use fireworks
 # LIGHTNING: enable lightning effect
 _FIRETOP = None
-_EVERYDAY_OPT = "FFNUM=15, RAND, FWORK"
+_EVERYDAY_OPT = "FFNUM=15, RAINBOW, FWORK"
 _FLOW_DELAY = 0.04
 _CHRISTMAS_OPT = "FFNUM=15, TWINKLE, STREAM"
 
