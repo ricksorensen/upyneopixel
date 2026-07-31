@@ -157,6 +157,7 @@ class Everyday(Holiday):
             elif 30 <= opt < 80 and (self.dorand or self.rainbow):
                 if self.rainbow:
                     print("starting rainbow")
+                    logger.warning(f"starting everyday rainbow  {self.dur}")
                     runleds.loop_rainbow_time(
                         self.pix,
                         tdur_secs=self.dur,
@@ -169,7 +170,7 @@ class Everyday(Holiday):
                 else:
                     flowdir = random.choice((True, False))
                     # print(f"everyday random flowdir = {flowdir}")
-                    logger.warning(f"starting everyday random {self.dur}")
+                    logger.warning(f"starting everyday random with flow {self.dur}")
                     runleds.loop_led_time(
                         self.pix,
                         None,
