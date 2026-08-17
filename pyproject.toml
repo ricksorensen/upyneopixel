@@ -1,0 +1,75 @@
+[project]
+name = "neopixelonly"
+version = "1.0.0"
+description = "Drive 300 led linear strip on tree"
+readme = "README.md"
+requires-python = ">=3.4"
+authors = [
+    { name = "Rick Sorensen", email = "rick.sorensen@gmail.com" }
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+# [project.optional-dependencies]
+
+#dev = [
+#]
+
+#[project.scripts]
+
+dependencies = [
+    "micropython-neopixel",
+    "micropython-logging",
+    "micropython-time",
+    "micropython-onewire",
+    "micropython-ds28x20",
+    "micropython-umqtt.simple",
+    "micropython-network",
+    "micropython-webrepl",
+]
+
+[tool.mpremote]
+# Automate your micro-controller deployment tasks via mpremote
+commands = { run = "mount . run startholiday.py", monitor = "repl" }
+
+
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.ruff]
+# Configure a modern linter to enforce code formatting
+line-length = 88
+target-version = "py38"
+# select = ["E", "F", "I"]
+builtins = ["ptr", "ptr8", "ptr16", "ptr32", "uint", "micropython", "const", "execfile"]
+
+[tool.ruff.lint]
+extend-select = [
+  "C9",     # mccabe complexity check
+  "PLC",    # convention check messages
+  "W292",   # new line at end of file
+  "E501",   # line length
+]
+ignore = [
+  # "E401",    # multiple imports on one line
+  "E402",    # import not at top of file
+  # "E722",    # bare except
+  "E731",    # lambda expression assigned to variable name
+  # "E741",    # short single letter variable
+  # "F401",  # unused import
+  "F403",    # wildcard import
+  "F405",    # name may be undefined
+  "PLC0206",  # dict index missing items
+  "PLC0415",  # conditional imports are common in MicroPython
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 29
+
+# [tool.ty.rules]
+# unreachable_code = "ignore"
