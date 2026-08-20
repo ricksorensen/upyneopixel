@@ -93,6 +93,7 @@ class Everyday(Holiday):
                 self.tempsens = None
             else:
                 self.tempsens = (tsens, rs[0])
+                logger.warning("tempsensor found")
         except Exception as excp:
             self.tempsens = None
             logger.exception("exception while checking temp sensor", exc_info=excp)
