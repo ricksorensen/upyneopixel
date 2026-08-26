@@ -1,11 +1,12 @@
-import holiday
-import effect_panel
-import simpfirefly
 import gc
-import time
-import random
-import fwpartx as boom  # was import boom
 import logging
+import random
+import time
+
+import effect_panel
+import fwpartx as boom  # was import boom
+import holiday
+import simpfirefly
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,14 @@
 # import colorsupport
 import gc
-import random
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.INFO)
 try:
+    from time import sleep, ticks_diff, ticks_ms
+
     from micropython import const
-    from time import ticks_ms, ticks_diff, sleep
 
     stime = ticks_ms()
 except (ModuleNotFoundError, AttributeError):
@@ -71,7 +72,7 @@ def flare(
     a=-9.8,  # acceleration
     iterlim=1000,  # maximum number of steps
     sampinterval=0.02,  # time interval
-    fcolor=0,  #
+    fcolor=0,
     useiter=False,  # use steps (iteration count) instead of time
     debugprint=False,
     norm=1,

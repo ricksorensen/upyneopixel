@@ -1,9 +1,10 @@
 # https://www.anirama.com/1000leds/1d-fireworks/
-import random
-import colorsupport
-import time
 import gc
 import logging
+import random
+import time
+
+import colorsupport
 
 logger = logging.getLogger(__name__)
 NUM_SPARK = 8

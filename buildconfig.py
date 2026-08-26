@@ -98,7 +98,7 @@ def domain(args):
             tpin = 0
             r.ip = None  # force no network
         fc.write(f"_NEOPIN = {lpin}\n")
-        fc.write(f"_USE_NETWORK = {False if r.ip is None else True}\n")
+        fc.write(f"_USE_NETWORK = {r.ip is not None}\n")
         fc.write("_WAIT_NO_CONNECT = 120\n")
         duse = None if r.ip is not None else getdate(r.dateuse)
         fc.write(f"_USE_DATE = {duse}\n")

@@ -1,18 +1,19 @@
-from holiday import Holiday, rjslocaltime
-import runleds
-import colorsupport
-import onewire
-import ds18x20
-import config
-import machine
+import logging
 import random
-import simpfirefly
-import lightning
+
+import ds18x20
+import machine
+import onewire
+
+import colorsupport
+import config
 
 # import boom
 import fwpartx
-
-import logging
+import lightning
+import runleds
+import simpfirefly
+from holiday import Holiday, rjslocaltime
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +130,7 @@ class Everyday(Holiday):
             t = None
             nrand = len(self.pix) // 3
 
-        logger.debug("everyday t={},  nff={}".format(tout, self.ffnum))
+        logger.debug(f"everyday t={tout},  nff={self.ffnum}")
         if self.temp and (("TEMP" in config._EVERYDAY_OPT) or ((tod[4] % 30) < 5)):
             logger.warning(f"starting everyday runtemp {self.dur}")
             # print("everyday runtemp")
@@ -210,7 +211,7 @@ class Everyday(Holiday):
         c = (0, 0, 0)
         tout = None
         try:
-            tout, tmcu = get_temp(
+            tout, _ = get_temp(
                 self.tmin,
                 self.tmax,
                 correct=0,

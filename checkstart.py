@@ -1,9 +1,11 @@
 import logging
+import time
+
+import machine
+
+import config
 import holiday
 import mqttquick
-import time
-import config
-import machine
 
 
 def getlightlevel(report=False):
@@ -17,8 +19,9 @@ def getlightlevel(report=False):
 
 
 try:
-    import esp32
     import network
+
+    import esp32
 
     logger = logging.getLogger(__name__)
 
