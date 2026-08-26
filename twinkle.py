@@ -8,10 +8,10 @@
 #    add NEO_PIN definition
 #    change how brightness is done (constructor in circuitpython, not in upython)
 
-import time
-import random
 import gc
 import logging
+import random
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +85,7 @@ def brimleyi(reset_time_input, light_number, pixels):
     reset_time = reset_time_input
 
     # on flash
-    if 5000 <= time_from_zero <= 5500:
-        selon(light_number, pixels)
-    elif 15000 <= time_from_zero <= 15500:
+    if 5000 <= time_from_zero <= 5500 or 15000 <= time_from_zero <= 15500:
         selon(light_number, pixels)
     # reset (includes 10 seconds after second flash - 5 on the back end and 5 on the front end)
     elif time_from_zero > 20000:
@@ -107,7 +105,7 @@ def macdermotti(reset_time_input, light_number, pixels, debug=False):
     #  even if it is not updated in the last if statement
     reset_time = reset_time_input
     if debug:
-        logger.debug("MacDermotti: {} {}".format(reset_time_input, time_from_zero))
+        logger.debug(f"MacDermotti: {reset_time_input} {time_from_zero}")
     # on flash
     p = "off default"
     if 3000 <= time_from_zero <= 3500:
@@ -130,7 +128,7 @@ def macdermotti(reset_time_input, light_number, pixels, debug=False):
         off(light_number, pixels)
     if debug:
         logger.debug(f"           : path: {p}")
-        logger.debug("           : return {}".format(reset_time))
+        logger.debug(f"           : return {reset_time}")
 
     return reset_time
 
@@ -141,19 +139,15 @@ def carolinus(reset_time_input, light_number, pixels):
     #   even if it is not updated in the last if statement
     reset_time = reset_time_input
 
-    if 0 <= time_from_zero <= 500:
-        selon(light_number, pixels)
-    elif 1000 <= time_from_zero <= 1500:
-        selon(light_number, pixels)
-    elif 2000 <= time_from_zero <= 2500:
-        selon(light_number, pixels)
-    elif 3000 <= time_from_zero <= 3500:
-        selon(light_number, pixels)
-    elif 4000 <= time_from_zero <= 4500:
-        selon(light_number, pixels)
-    elif 5000 <= time_from_zero <= 5500:
-        selon(light_number, pixels)
-    elif 6000 <= time_from_zero <= 6500:
+    if (
+        0 <= time_from_zero <= 500
+        or 1000 <= time_from_zero <= 1500
+        or 2000 <= time_from_zero <= 2500
+        or 3000 <= time_from_zero <= 3500
+        or 4000 <= time_from_zero <= 4500
+        or 5000 <= time_from_zero <= 5500
+        or 6000 <= time_from_zero <= 6500
+    ):
         selon(light_number, pixels)
     elif time_from_zero >= 15:
         off(light_number, pixels)
@@ -205,7 +199,7 @@ def doTwinkle(pixels, twinkledata, tdur_sec=120):
         # use the series of if statements to match the randomly
         #   assigned number to the types of fireflies
 
-        for i in range(0, number_of_lights):
+        for i in range(number_of_lights):
             if bug_holder[i].type == 1:
                 bug_holder[i].reset_time_input = brimleyi(
                     bug_holder[i].reset_time_input, i, pixels

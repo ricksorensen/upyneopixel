@@ -1,5 +1,6 @@
-import machine
 import logging
+
+import machine
 
 logging.basicConfig(
     filename="rjslogx.log",
@@ -8,7 +9,7 @@ logging.basicConfig(
 )
 
 ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
+ch.setLevel(logging.INFO)
 ch.setFormatter(
     logging.Formatter(
         "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s"
@@ -16,25 +17,27 @@ ch.setFormatter(
 )
 logging.getLogger().addHandler(ch)
 
-import holiday
-import everyday
-import mqttquick
-import halloween
-import fire
-import runleds
-import time
-import os
 import gc
-import config
+import os
+import time
+
 import checkstart
+import config
 import esp32
+import everyday
+import fire
+import halloween
+import holiday
+import mqttquick
+import runleds
 
 endstat = []
 
 
 if config._USE_NETWORK:
-    import netconnect
     import ntptime
+
+    import netconnect
 
 logger = logging.getLogger(__name__)
 

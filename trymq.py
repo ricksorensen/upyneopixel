@@ -1,5 +1,6 @@
-from umqtt.simple import MQTTClient
 import time
+
+from umqtt.simple import MQTTClient
 
 dostop = False
 
