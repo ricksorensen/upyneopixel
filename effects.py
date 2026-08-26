@@ -1,7 +1,6 @@
-from time import sleep
-from random import randint
 import gc
 import logging
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
