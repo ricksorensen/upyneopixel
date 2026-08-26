@@ -1,5 +1,5 @@
-import time
 import random
+import time
 
 # import neopixel
 # import machine
@@ -11,7 +11,7 @@ import random
 
 
 class Blinker:
-    def __init__(self, pos, led, *, gap=1, color=[127, 40, 0], autoblink=False):
+    def __init__(self, pos, led, *, gap=1, color=(127, 40, 0), autoblink=False):
         self.active = False
         # self.deadtime=deadtime
         self.pos = pos % len(led)
@@ -30,16 +30,7 @@ class Blinker:
         self.opentrange = [1000, 2000]
 
     def __repr__(self):
-        rv = (
-            "Blinker: active={} pos={} color={} opent={} closet={} autoblink={}".format(
-                self.active,
-                self.pos,
-                self.color,
-                self.opentime,
-                self.closetime,
-                self.autoblink,
-            )
-        )
+        rv = f"Blinker: active={self.active} pos={self.pos} color={self.color} opent={self.opentime} closet={self.closetime} autoblink={self.autoblink}"
         return rv
 
     def setpos(self, pos):

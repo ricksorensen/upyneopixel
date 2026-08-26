@@ -1,9 +1,10 @@
-import holiday
-import randBlinkerFade as doeyes
-import random
 import gc
 import logging
+import random
+
 import config
+import holiday
+import randBlinkerFade as doeyes
 
 logger = logging.getLogger(__name__)
 

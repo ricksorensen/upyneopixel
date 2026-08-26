@@ -1,9 +1,10 @@
-import effects
+import gc
 import logging
 import random
 import time
-import gc
+
 import config
+import effects
 from checkstart import getlightlevel
 
 logger = logging.getLogger(__name__)

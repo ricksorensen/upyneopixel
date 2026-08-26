@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -10,11 +10,9 @@ def chkssid(wlan):
     hosts = wlan.scan()
     maxstrength = [-1000, "NONET"]
     for h in hosts:
-        if "RJS" in h[0]:
-            # acthosts[h[0]] = h[3]
-            if h[3] > maxstrength[0]:
-                maxstrength[0] = h[3]
-                maxstrength[1] = h[0]
+        if "RJS" in h[0] and (h[3] > maxstrength[0]):
+            maxstrength[0] = h[3]
+            maxstrength[1] = h[0]
     logger.debug(f"chkssid: {maxstrength}")
     return maxstrength[1]
 
@@ -69,9 +67,7 @@ def connectIP(ssid="RJSNG_24", key="december23", timeout=30000, myIP="192.168.1.
             f.write(f"used SSID={ssid}  connected={not tout}")
         print(f"used SSID={ssid}  connected={not tout}")
     elif myIP is not None and sta_if.ifconfig()[0] != myIP:
-        logger.info(
-            "resetting IP address from {} to {}".format(sta_if.ifconfig()[0], myIP)
-        )
+        logger.info(f"resetting IP address from {sta_if.ifconfig()[0]} to {myIP}")
         sta_if.ifconfig((myIP, "255.255.255.0", "192.168.1.18", "8.8.8.8"))
     if tout:
         logger.info(f"network {ssid} not connected")
