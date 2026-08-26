@@ -1,17 +1,17 @@
-import config  # makesur config is global instance
-import time
-import holiday
 import logging
+import time
+
 from umqtt.simple import MQTTClient
+
+import config  # makesur config is global instance
+import holiday
 
 logger = logging.getLogger(__name__)
 
 
 def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
     tnow = holiday.rjslocaltime(tzoff=-6)
-    msg = "{:04d}{:02d}{:02d}{:02d}{:02d}: Hrnow={} Sleep={} Temp={}".format(
-        tnow[0], tnow[1], tnow[2], tnow[3], tnow[4], hrnow, hrsleep, temp
-    )
+    msg = f"{tnow[0]:04d}{tnow[1]:02d}{tnow[2]:02d}{tnow[3]:02d}{tnow[4]:02d}: Hrnow={hrnow} Sleep={hrsleep} Temp={temp}"
     topic = (
         f"alert/sleep{addtopic}"
         if ((hrsleep is not None) and (hrsleep > 0))
@@ -29,12 +29,7 @@ def msgalert(hrsleep, hrnow, temp=None, addtopic=""):
 
 def msgspecial(msgin, topic):
     tnow = holiday.rjslocaltime(tzoff=-6)
-    msg = (
-        "{:04d}{:02d}{:02d}{:02d}{:02d}: ".format(
-            tnow[0], tnow[1], tnow[2], tnow[3], tnow[4]
-        )
-        + msgin
-    )
+    msg = f"{tnow[0]:04d}{tnow[1]:02d}{tnow[2]:02d}{tnow[3]:02d}{tnow[4]:02d}: " + msgin
     try:
         mqttc = MQTTClient("esp32c3xiaoUniq", "192.168.1.88", keepalive=60)
         mqttc.connect()
