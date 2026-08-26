@@ -1,11 +1,12 @@
-import time
-import random
 import gc
-import runleds
-import twinkle
 import logging
-import simpfirefly
+import random
+import time
+
 import config
+import runleds
+import simpfirefly
+import twinkle
 
 logger = logging.getLogger(__name__)
 
@@ -262,7 +263,7 @@ class NoDate(Holiday):
 
 
 class Birthday(Holiday):
-    bdays = [
+    bdays = (
         (4, 11),  # Lucas
         (4, 24),  # Jo
         (5, 2),  # Rozzi
@@ -276,7 +277,7 @@ class Birthday(Holiday):
         (9, 26),  # Mendel
         (12, 18),  # Rick
         (12, 31),  # NYE
-    ]
+    )
 
     def __init__(self, pix, *, dur=100, nrandom=None, bright=0.1, sf=None):
         self.data = None
