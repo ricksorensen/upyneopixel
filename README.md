@@ -68,7 +68,73 @@ Known holidays (summer holidays omitted until solar can provide power!)
 + Christmas.  Red and green effects
 + Various birthdays.
 
+
+Uses modules:
+mip install neopixel
+mip install ntptime
+mip install umqtt.simple
+mip install logging ... modified ... allow changing logging level and other features.
+mip install onewire
+mip install ds18x20  (requires onewire)
+mip install time    ... modifies system time to add strftime .. import get this one, which includes utime (the default)
+
+
+|module|source|      |
+| ---- | ---- | ---- |
+|esp32|builtin|
+|ntptime|builtin or lib|
+|sys|builtin|
+|time|builtin with upy lib update|
+|umqtt.simple|builtin or lib|
+|random|builtin|
+|gc|builtin|
+|logging|lib|
+|machine|builtin|
+|random|builtin|
+|neopixel|lib|
+|onewire|builtin or lib|
+|ds18x20|builtin or lib|
+|micropython|builtin|
+|network|builtin|
+|webrepl|builtin|
+|math|builtin|used by runleds for non-linear scaling|
+
+|config|
+|netconnect|
+|colorsupport|
+|holiday|
+|mqttquick|
+|everyday|
+|runleds|
+|simpfirefly|
+|lightning|
+|fwpartx|
+|holiday|
+|boom|
+|randBlinkerFade|
+|effects|
+|twinkle|
+|checkstart|
+|startholiday|
+|halloween|
+|fire|
+
+
 Define2
 :  Does this work?
 
 ![abc](neoschem.png)
+
+modified module time in micropython-lib to add strftime
+
+time MicroPython default:
+gmtime          localtime       mktime          sleep
+sleep_ms        sleep_us        ticks_add       ticks_cpu
+ticks_diff      ticks_ms        ticks_us        time
+time_ns
+
+time updated:
+const           gmtime          localtime       mktime
+sleep           sleep_ms        sleep_us        ticks_add
+ticks_cpu       ticks_diff      ticks_ms        ticks_us
+time            time_ns         strftime
