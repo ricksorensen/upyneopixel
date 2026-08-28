@@ -171,7 +171,7 @@ class Everyday(Holiday):
 
                 else:
                     flowdir = random.choice((True, False))
-                    # print(f"everyday random flowdir = {flowdir}")
+                    print(f"everyday random flowdir = {flowdir}")
                     logger.warning(f"starting everyday random with flow {self.dur}")
                     runleds.loop_led_time(
                         self.pix,
@@ -194,7 +194,7 @@ class Everyday(Holiday):
                 #    norm = 2.4
                 fwpartx.doall(self.pix, vel=80, durms=self.dur * 1000, dly=2, norm=norm)
             else:
-                # print("everyday random no flow")
+                print("everyday random no flow")
                 logger.warning(f"starting everyday random no flow {self.dur}")
                 runleds.loop_led_time(
                     self.pix,
