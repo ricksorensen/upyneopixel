@@ -86,6 +86,7 @@ def start(
                 # print("wait for WebREPL connection")
                 time.sleep(30)
                 delayStart = delayStart - 1
+            mqttquick.checkconfig()
         allokay = True
     else:
         allokay = True
